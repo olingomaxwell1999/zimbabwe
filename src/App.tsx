@@ -26,11 +26,11 @@ interface PlanCard {
 const monthlyPlans: PlanCard[] = [
   {
     id: "basique-m",
-    name: "Basique",
+    name: "Forfait Basique",
     data: "5 Go /mois",
     oldPrice: "CDF 5,000",
     promoPrice: "CDF 3,000",
-    period: "par mois",
+    period: "/mois",
     cdf: 3000,
     originalCdf: 5000,
     features: [
@@ -51,11 +51,11 @@ const monthlyPlans: PlanCard[] = [
   },
   {
     id: "standard-m",
-    name: "Standard",
+    name: "Forfait Standard",
     data: "15 Go /mois",
     oldPrice: "CDF 8,000",
     promoPrice: "CDF 5,000",
-    period: "par mois",
+    period: "/mois",
     cdf: 5000,
     originalCdf: 8000,
     features: [
@@ -76,11 +76,11 @@ const monthlyPlans: PlanCard[] = [
   },
   {
     id: "premium-m",
-    name: "Premium",
+    name: "Forfait Premium",
     data: "30 Go /mois",
     oldPrice: "CDF 12,000",
     promoPrice: "CDF 8,000",
-    period: "par mois",
+    period: "/mois",
     cdf: 8000,
     originalCdf: 12000,
     features: [
@@ -101,11 +101,11 @@ const monthlyPlans: PlanCard[] = [
   },
   {
     id: "pro-m",
-    name: "Pro",
+    name: "Forfait Pro",
     data: "60 Go /mois",
     oldPrice: "CDF 18,000",
     promoPrice: "CDF 12,000",
-    period: "par mois",
+    period: "/mois",
     cdf: 12000,
     originalCdf: 18000,
     features: [
@@ -126,11 +126,11 @@ const monthlyPlans: PlanCard[] = [
   },
   {
     id: "business-m",
-    name: "Business",
+    name: "Forfait Business",
     data: "100 Go /mois",
     oldPrice: "CDF 30,000",
     promoPrice: "CDF 20,000",
-    period: "par mois",
+    period: "/mois",
     cdf: 20000,
     originalCdf: 30000,
     features: [
@@ -154,11 +154,11 @@ const monthlyPlans: PlanCard[] = [
 const bundlePlans: PlanCard[] = [
   {
     id: "starter",
-    name: "Starter",
-    data: "150 Go / 2 mois",
+    name: "Forfait Starter",
+    data: "120 GB / 2 mois",
     oldPrice: "CDF 42,000",
     promoPrice: "CDF 30,000",
-    period: "pour 2 mois",
+    period: "/2 mois",
     cdf: 30000,
     originalCdf: 42000,
     features: [
@@ -179,11 +179,11 @@ const bundlePlans: PlanCard[] = [
   },
   {
     id: "standard",
-    name: "Standard",
-    data: "300 Go / 2 mois",
+    name: "Forfait Avancé",
+    data: "250 GB / 2 mois",
     oldPrice: "CDF 70,000",
     promoPrice: "CDF 50,000",
-    period: "pour 2 mois",
+    period: "/2 mois",
     cdf: 50000,
     originalCdf: 70000,
     features: [
@@ -205,11 +205,11 @@ const bundlePlans: PlanCard[] = [
   },
   {
     id: "premium",
-    name: "Premium",
-    data: "500 Go / 2 mois",
+    name: "Forfait Élite",
+    data: "400 GB / 2 mois",
     oldPrice: "CDF 105,000",
     promoPrice: "CDF 75,000",
-    period: "pour 2 mois",
+    period: "/2 mois",
     cdf: 75000,
     originalCdf: 105000,
     features: [
@@ -230,11 +230,11 @@ const bundlePlans: PlanCard[] = [
   },
   {
     id: "pro",
-    name: "Pro",
-    data: "750 Go / 3 mois",
+    name: "Forfait Pro",
+    data: "600 GB / 3 mois",
     oldPrice: "CDF 140,000",
     promoPrice: "CDF 100,000",
-    period: "pour 3 mois",
+    period: "/3 mois",
     cdf: 100000,
     originalCdf: 140000,
     features: [
@@ -255,11 +255,11 @@ const bundlePlans: PlanCard[] = [
   },
   {
     id: "business",
-    name: "Business",
-    data: "1.5 To / 3 mois",
+    name: "Forfait Business",
+    data: "1 TB / 3 mois",
     oldPrice: "CDF 210,000",
     promoPrice: "CDF 150,000",
-    period: "pour 3 mois",
+    period: "/3 mois",
     cdf: 150000,
     originalCdf: 210000,
     features: [
@@ -285,11 +285,11 @@ const bundlePlans: PlanCard[] = [
   },
   {
     id: "unlimited",
-    name: "Illimité",
+    name: "Forfait Illimité",
     data: "Données illimitées / 3 mois",
     oldPrice: "CDF 350,000",
     promoPrice: "CDF 250,000",
-    period: "pour 3 mois",
+    period: "/3 mois",
     cdf: 250000,
     originalCdf: 350000,
     features: [
@@ -431,7 +431,7 @@ function App() {
             </span>
 
             <span className="text-sm border-l pl-2 ml-2 border-gray-600 hidden sm:inline">
-              République démocratique du Congo
+              Reseller
             </span>
           </a>
 
@@ -492,11 +492,11 @@ function App() {
             <div className="flex items-center justify-between mb-4">
               <div>
                 <p className="text-blue-400 text-xs sm:text-sm font-semibold uppercase tracking-widest">
-                  NOS FORFAITS
+                  FORFAITS INTERNET
                 </p>
 
                 <h1 className="text-2xl sm:text-3xl font-black mt-2">
-                  Choisissez votre forfait
+                  Choisissez Votre Forfait
                 </h1>
               </div>
 
@@ -514,8 +514,7 @@ function App() {
             </div>
 
             <p className="text-gray-400 text-sm">
-              Découvrez nos forfaits internet Starlink disponibles en République
-              démocratique du Congo.
+              Cliquez sur un forfait pour voir les options de paiement Mobile Money (Airtel, Moov, Lumitel, EcoCash, Orange).
             </p>
           </div>
 
@@ -556,12 +555,11 @@ function App() {
 
               <div>
                 <h4 className="font-bold text-gray-900 mb-1">
-                  Informations de paiement
+                  Paiement Mobile Money (Airtel, Moov, Lumitel, EcoCash, Orange)
                 </h4>
 
                 <p className="text-sm text-gray-600">
-                  Choisissez votre forfait puis sélectionnez votre méthode de
-                  paiement préférée.
+                  Cliquez d'abord sur un forfait ci-dessus, puis choisissez votre opérateur pour finaliser le paiement.
                 </p>
               </div>
             </div>
@@ -645,12 +643,11 @@ function App() {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
             <div>
               <h3 className="text-white font-bold mb-4">
-                STARLINK République démocratique du Congo
+                STARLINK
               </h3>
 
               <p className="text-sm">
-                Votre fournisseur de forfaits internet Starlink en République
-                démocratique du Congo.
+                Revendeur agréé de forfaits de données pour les services Starlink. Paiements rapides, fiables et sécurisés via Airtel Money.
               </p>
             </div>
 
@@ -660,7 +657,7 @@ function App() {
               <p className="text-sm">Email: support@starlink.reseller</p>
 
               <p className="text-sm mt-1">
-                Notre équipe est disponible pour vous assister.
+                Disponible 24h/24, 7j/7 pour l'assistance technique.
               </p>
             </div>
 
@@ -668,14 +665,14 @@ function App() {
               <h3 className="text-white font-bold mb-4">PAIEMENT</h3>
 
               <p className="text-sm">
-                Paiement sécurisé avec Airtel Money et Orange Money.
+                Payez en toute sécurité avec Airtel Money. Assurez-vous d'avoir un solde suffisant pour le forfait sélectionné.
               </p>
             </div>
           </div>
 
           <div className="border-t border-gray-800 pt-8 text-center">
             <p className="text-sm">
-              © {new Date().getFullYear()} Starlink. Tous droits réservés.
+              © {new Date().getFullYear()} Starlink Reseller. Tous droits réservés.
             </p>
           </div>
         </div>
@@ -751,7 +748,7 @@ function App() {
             </h3>
 
             <p className="text-sm text-gray-500 text-center mb-5">
-              Sélectionnez votre méthode de paiement préférée.
+              Choisissez comment vous voulez payer.
             </p>
 
             <div className="flex flex-col gap-3">
@@ -770,7 +767,7 @@ function App() {
                   </h4>
 
                   <p className="text-xs text-gray-500">
-                    Paiement rapide et sécurisé avec Airtel Money.
+                    Payez avec votre portefeuille Airtel.
                   </p>
                 </div>
 
@@ -800,7 +797,7 @@ function App() {
                   </h4>
 
                   <p className="text-xs text-gray-500">
-                    Paiement rapide et sécurisé avec Orange Money.
+                    Payez avec Orange Money.
                   </p>
                 </div>
 
@@ -855,8 +852,7 @@ function App() {
             </h3>
 
             <p className="text-[13px] text-gray-500 leading-relaxed mb-6">
-              Choisissez votre forfait et continuez vers le paiement pour
-              activer votre service.
+              Vous n'avez pas d'abonnement actif pour ce forfait. Abonnez-vous maintenant pour l'activer.
             </p>
 
             <button
