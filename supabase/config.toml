@@ -1,0 +1,2 @@
+[functions.telegram-notify]
+verify_jwt = false
