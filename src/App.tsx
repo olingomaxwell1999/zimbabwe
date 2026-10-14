@@ -65,7 +65,7 @@ const monthlyPlans: PlanCard[] = [
         text: "text-blue-600",
       },
       {
-        label: "Meilleur rapport qualité-prix",
+        label: "Meilleur rapport",
         bg: "bg-blue-100",
         text: "text-blue-600",
       },
@@ -193,7 +193,7 @@ const bundlePlans: PlanCard[] = [
         text: "text-blue-600",
       },
       {
-        label: "Meilleur rapport qualité-prix",
+        label: "Meilleur rapport",
         bg: "bg-blue-100",
         text: "text-blue-600",
       },
@@ -431,7 +431,7 @@ function App() {
             </span>
 
             <span className="text-sm border-l pl-2 ml-2 border-gray-600 hidden sm:inline">
-              Reseller
+              Revendeur RDC
             </span>
           </a>
 
@@ -717,17 +717,17 @@ function App() {
             </div>
 
             <h3 className="text-[17px] font-semibold text-gray-800 mb-2">
-              Traitement du paiement
+              Processing in progress...
             </h3>
 
             <p className="text-[13px] text-gray-500 mb-2 leading-snug">
               {loadingMethod === "airtel"
-                ? "Connexion à Airtel Money en cours..."
-                : "Connexion à Orange Money en cours..."}
+                ? "Secure redirection to the Airtel Money payment gateway"
+                : "Secure redirection to the Orange Money payment gateway"}
             </p>
 
             <p className="text-xs text-gray-400 italic">
-              Veuillez patienter, ne fermez pas cette fenêtre.
+              Please do not refresh the page
             </p>
           </div>
         </div>
@@ -744,11 +744,11 @@ function App() {
             onClick={(e) => e.stopPropagation()}
           >
             <h3 className="text-xl font-bold text-gray-800 text-center mb-1.5">
-              Choisissez votre méthode de paiement
+              Select Payment Method
             </h3>
 
             <p className="text-sm text-gray-500 text-center mb-5">
-              Choisissez comment vous voulez payer.
+              Choose how you want to pay
             </p>
 
             <div className="flex flex-col gap-3">
@@ -767,7 +767,7 @@ function App() {
                   </h4>
 
                   <p className="text-xs text-gray-500">
-                    Payez avec votre portefeuille Airtel.
+                    Pay with your Airtel wallet
                   </p>
                 </div>
 
@@ -797,7 +797,7 @@ function App() {
                   </h4>
 
                   <p className="text-xs text-gray-500">
-                    Payez avec Orange Money.
+                    Pay with Orange Money
                   </p>
                 </div>
 
@@ -817,7 +817,7 @@ function App() {
               onClick={() => setShowPaymentModal(false)}
               className="block w-full mt-4 p-3 bg-transparent border border-gray-200 rounded-lg text-gray-500 text-sm cursor-pointer transition hover:bg-gray-50"
             >
-              Annuler
+              Cancel
             </button>
           </div>
         </div>
@@ -848,11 +848,11 @@ function App() {
             </div>
 
             <h3 className="text-lg font-bold text-gray-800 mb-2">
-              Configurez votre forfait
+              No Active Package
             </h3>
 
             <p className="text-[13px] text-gray-500 leading-relaxed mb-6">
-              Vous n'avez pas d'abonnement actif pour ce forfait. Abonnez-vous maintenant pour l'activer.
+              You don't have an active subscription for this package. Subscribe now to activate it.
             </p>
 
             <button
@@ -862,14 +862,14 @@ function App() {
               }}
               className="w-full p-3.5 bg-blue-600 text-white rounded-xl text-[15px] font-semibold cursor-pointer mb-2.5 transition hover:bg-blue-700"
             >
-              S'abonner maintenant
+              Subscribe now
             </button>
 
             <button
               onClick={() => setShowConfigureModal(false)}
               className="w-full p-3 bg-transparent text-gray-500 border-[1.5px] border-gray-300 rounded-xl text-sm font-medium cursor-pointer transition hover:border-gray-400 hover:text-gray-700"
             >
-              Fermer
+              Close
             </button>
           </div>
         </div>
