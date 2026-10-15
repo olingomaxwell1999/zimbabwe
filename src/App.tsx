@@ -3,175 +3,486 @@ import AirtelPayment from "@/AirtelPayment";
 import OrangePayment from "@/OrangePayment";
 import { notifyTransaction } from "@/lib/notify";
 
+type Lang = "en" | "fr" | "my" | "rn" | "ar" | "am" | "st";
+
+const COUNTRY_NAME = "Zambia";
+const CURRENCY = "ZMW";
+
+const translations: Record<Lang, Record<string, string>> = {
+  en: {
+    pageTitle: "Packages - Starlink",
+    headerSubtitle: "Reseller",
+    navStatus: "Status",
+    navPlans: "Packages",
+    navOrders: "Orders",
+    navSettings: "Settings",
+    plansSubtitle: "Internet Packages",
+    plansTitle: "Choose Your Package",
+    plansDesc:
+      "Select a package and pay via Airtel Money to activate immediately.",
+    hint: "1) Tap a package  2) Choose your Mobile Money operator",
+    pkgStarter: "Starter Bundle",
+    pkgStandard: "Advanced Bundle",
+    pkgPremium: "Elite Bundle",
+    pkgPro: "Pro Bundle",
+    pkgBusiness: "Business Bundle",
+    pkgUnlimited: "Unlimited Bundle",
+    twoMonths: "/2 months",
+    threeMonths: "/3 months",
+    unlimitedData: "Unlimited data",
+    popular: "Popular",
+    budget: "Budget-friendly",
+    bestValue: "Best value",
+    streamingHD: "HD Streaming",
+    heavyUsage: "Heavy usage",
+    enterprise: "Enterprise",
+    prioritySupport: "Priority support",
+    unlimited247: "Unlimited 24/7",
+    vipSupport: "VIP Support",
+    staticIP: "Static IP",
+    paymentTitle: "Airtel Money Payment",
+    paymentDesc:
+      "First click a package, then select Airtel Money to complete the payment.",
+    payMethodTitle: "Select Payment Method",
+    payMethodSubtitle: "Choose how you want to pay",
+    payMethodAirtel: "Pay with your Airtel wallet",
+    payMethodMtn: "Pay with MTN MoMo",
+    payMethodMoov: "Pay with Moov Money",
+    payMethodLumitel: "Pay with Lumitel",
+    payMethodVodacom: "Pay with Vodacom M-Pesa",
+    payMethodEcocash: "Pay with EcoCash",
+    payMethodOrange: "Pay with Orange Money",
+    payMethodWafi: "Pay with WAAFI",
+    cancelBtn: "Cancel",
+    modalTitle: "Processing...",
+    modalSubtitle: "Secure redirection to the Airtel Money payment gateway",
+    modalSubtitleMtn: "Secure redirection to the MTN MoMo payment gateway",
+    modalWarning: "Please do not refresh the page",
+    footerDesc:
+      "Authorized reseller of data packages for Starlink services. Fast, reliable and secure payments via Airtel Money.",
+    footerSupport: "Available 24/7 for technical support.",
+    footerPayment:
+      "Pay securely with Airtel Money. Make sure you have sufficient balance for the selected package.",
+    footerCopyright: "© 2026 Starlink Reseller. All rights reserved.",
+    configureBtn: "Configure",
+    configureTitle: "No Active Package",
+    configureMsg:
+      "You don't have an active subscription for this package. Subscribe now to activate it.",
+    subscribeNow: "Subscribe Now",
+    closeBtn: "Close",
+  },
+  fr: {
+    pageTitle: "Forfaits - Starlink",
+    headerSubtitle: "Revendeur",
+    navStatus: "Statut",
+    navPlans: "Forfaits",
+    navOrders: "Commandes",
+    navSettings: "Paramètres",
+    plansSubtitle: "Forfaits Internet",
+    plansTitle: "Choisissez Votre Forfait",
+    plansDesc:
+      "Sélectionnez un forfait et payez via Airtel Money pour activer immédiatement.",
+    hint: "1) Cliquez sur un forfait  2) Choisissez un opérateur Mobile Money",
+    pkgStarter: "Forfait Starter",
+    pkgStandard: "Forfait Avancé",
+    pkgPremium: "Forfait Élite",
+    pkgPro: "Forfait Pro",
+    pkgBusiness: "Forfait Business",
+    pkgUnlimited: "Forfait Illimité",
+    twoMonths: "/2 mois",
+    threeMonths: "/3 mois",
+    unlimitedData: "Données illimitées",
+    popular: "Populaire",
+    budget: "Économique",
+    bestValue: "Meilleur rapport",
+    streamingHD: "Streaming HD",
+    heavyUsage: "Usage intensif",
+    enterprise: "Entreprise",
+    prioritySupport: "Support prioritaire",
+    unlimited247: "Illimité 24/7",
+    vipSupport: "Support VIP",
+    staticIP: "IP statique",
+    paymentTitle: "Paiement Airtel Money",
+    paymentDesc:
+      "Cliquez d’abord sur un forfait, puis sélectionnez Airtel Money pour finaliser le paiement.",
+    payMethodTitle: "Choisissez votre mode de paiement",
+    payMethodSubtitle: "Comment souhaitez-vous payer ?",
+    payMethodAirtel: "Payez avec votre portefeuille Airtel",
+    payMethodMtn: "Payez avec MTN MoMo",
+    payMethodMoov: "Payez avec Moov Money",
+    payMethodLumitel: "Payez avec Lumitel",
+    payMethodVodacom: "Payez avec Vodacom M-Pesa",
+    payMethodEcocash: "Payez avec EcoCash",
+    payMethodOrange: "Payez avec Orange Money",
+    payMethodWafi: "Payez avec WAAFI",
+    cancelBtn: "Annuler",
+    modalTitle: "Traitement en cours...",
+    modalSubtitle:
+      "Redirection sécurisée vers la passerelle de paiement Airtel Money",
+    modalSubtitleMtn:
+      "Redirection sécurisée vers la passerelle de paiement MTN MoMo",
+    modalWarning: "Veuillez ne pas actualiser la page",
+    footerDesc:
+      "Revendeur agréé de forfaits de données pour les services Starlink. Paiements rapides, fiables et sécurisés via Airtel Money.",
+    footerSupport: "Disponible 24h/24, 7j/7 pour l'assistance technique.",
+    footerPayment:
+      "Payez en toute sécurité avec Airtel Money. Assurez-vous d'avoir un solde suffisant pour le forfait sélectionné.",
+    footerCopyright: "© 2026 Starlink Reseller. Tous droits réservés.",
+    configureBtn: "Configurer",
+    configureTitle: "Aucun forfait actif",
+    configureMsg:
+      "Vous n'avez pas encore de forfait actif pour ce service. Abonnez-vous maintenant pour l'activer.",
+    subscribeNow: "S'abonner maintenant",
+    closeBtn: "Fermer",
+  },
+  my: {
+    pageTitle: "ပက်ကေ့ဂျ်များ - Starlink",
+    headerSubtitle: "ပြန်လည်ရောင်းချသူ",
+    navStatus: "အခြေအနေ",
+    navPlans: "ပက်ကေ့ဂျ်များ",
+    navOrders: "မှာယူမှုများ",
+    navSettings: "ဆက်တင်များ",
+    plansSubtitle: "အင်တာနက် ပက်ကေ့ဂျ်များ",
+    plansTitle: "သင့်ပက်ကေ့ဂျ်ကို ရွေးချယ်ပါ",
+    plansDesc:
+      "ပက်ကေ့ဂျ်တစ်ခုကို ရွေးချယ်ပြီး ချက်ချင်းအသက်သွင်းရန် မိုဘိုင်းငွေဖြင့် ပေးချေပါ။",
+    hint: "1) ပက်ကေ့ဂျ်ကို နှိပ်ပါ  2) သင့် Mobile Money အော်ပရေတာကို ရွေးချယ်ပါ",
+    pkgStarter: "Starter ပက်ကေ့ဂျ်",
+    pkgStandard: "Advanced ပက်ကေ့ဂျ်",
+    pkgPremium: "Elite ပက်ကေ့ဂျ်",
+    pkgPro: "Pro ပက်ကေ့ဂျ်",
+    pkgBusiness: "Business ပက်ကေ့ဂျ်",
+    pkgUnlimited: "Unlimited ပက်ကေ့ဂျ်",
+    twoMonths: "/၂ လ",
+    threeMonths: "/၃ လ",
+    unlimitedData: "ဒေတာ အကန့်အသတ်မရှိ",
+    popular: "လူကြိုက်များ",
+    budget: "ဘတ်ဂျက်သက်သာ",
+    bestValue: "အကောင်းဆုံးတန်ဖိုး",
+    streamingHD: "HD ကြည့်ရှုရေး",
+    heavyUsage: "အသုံးများသည်",
+    enterprise: "လုပ်ငန်းသုံး",
+    prioritySupport: "ဦးစားပေး ပံ့ပိုးမှု",
+    unlimited247: "၂၄/၇ အကန့်အသတ်မရှိ",
+    vipSupport: "VIP ပံ့ပိုးမှု",
+    staticIP: "Static IP",
+    paymentTitle: "Airtel Money Payment",
+    paymentDesc: "Select a package then choose Airtel Money to pay.",
+    payMethodTitle: "ငွေပေးချေမှု နည်းလမ်း ရွေးချယ်ပါ",
+    payMethodSubtitle: "မည်သို့ ပေးချေလိုသနည်း?",
+    payMethodAirtel: "Airtel ပိုက်ဆံအိတ်ဖြင့် ပေးချေပါ",
+    payMethodMtn: "MTN MoMo ဖြင့် ပေးချေပါ",
+    payMethodMoov: "Moov Money ဖြင့် ပေးချေပါ",
+    payMethodLumitel: "Lumitel ဖြင့် ပေးချေပါ",
+    payMethodVodacom: "Vodacom M-Pesa ဖြင့် ပေးချေပါ",
+    payMethodEcocash: "EcoCash ဖြင့် ပေးချေပါ",
+    payMethodOrange: "Orange Money ဖြင့် ပေးချေပါ",
+    payMethodWafi: "WAAFI ဖြင့် ပေးချေပါ",
+    cancelBtn: "ပယ်ဖျက်ပါ",
+    modalTitle: "လုပ်ဆောင်နေသည်...",
+    modalSubtitle: "ငွေပေးချေမှု gateway သို့ လုံခြုံစွာ ပြန်ညွှန်းနေပါသည်",
+    modalSubtitleMtn:
+      "MTN MoMo ငွေပေးချေမှု gateway သို့ လုံခြုံစွာ ပြန်ညွှန်းနေပါသည်",
+    modalWarning: "စာမျက်နှာကို refresh မလုပ်ပါနှင့်",
+    footerDesc:
+      "Starlink ဝန်ဆောင်မှုများအတွက် ဒေတာပက်ကေ့ဂျ်များ၏ တရားဝင်ပြန်လည်ရောင်းချသူ။ မိုဘိုင်းငွေဖြင့် မြန်ဆန်၊ ယုံကြည်ရပြီး လုံခြုံသော ငွေပေးချေမှုများ။",
+    footerSupport: "နည်းပညာ ပံ့ပိုးမှုအတွက် ၂၄/၇ ရရှိနိုင်ပါသည်။",
+    footerPayment:
+      "မိုဘိုင်းငွေဖြင့် လုံခြုံစွာ ပေးချေပါ။ ရွေးချယ်ထားသော ပက်ကေ့ဂျ်အတွက် လုံလောက်သော လက်ကျန်ငွေ ရှိကြောင်း သေချာပါစေ။",
+    footerCopyright:
+      "© 2026 Starlink Reseller. မူပိုင်ခွင့်များ အားလုံးရယူထားသည်။",
+    configureBtn: "ပြင်ဆင်သတ်မှတ်",
+    configureTitle: "တက်ကြွသောပက်ကေ့ဂျ် မရှိပါ",
+    configureMsg:
+      "ဤပက်ကေ့ဂျ်အတွက် သင်တွင် တက်ကြွသောစာရင်းသွင်းမှု မရှိပါ။ ယခုပင် စာရင်းသွင်းပါ။",
+    subscribeNow: "ယခုပင် စာရင်းသွင်း",
+    closeBtn: "ပိတ်ပါ",
+  },
+  rn: {
+    pageTitle: "Amafogito - Starlink",
+    headerSubtitle: "Umucuruzi",
+    navStatus: "Imimerere",
+    navPlans: "Amafogito",
+    navOrders: "Amasabwa",
+    navSettings: "Igenamiterere",
+    plansSubtitle: "Amafogito ya Internet",
+    plansTitle: "Hitamwo Ifogito Ryanyu",
+    plansDesc:
+      "Hitamwo ifogito hanyuma wishure biciye kuri Lumitel kugira ritangure ako kanya.",
+    hint: "1) Kanda ku fogito  2) Hitamwo umucuruzi wa Mobile Money",
+    pkgStarter: "Ifogito Starter",
+    pkgStandard: "Ifogito Avancé",
+    pkgPremium: "Ifogito Élite",
+    pkgPro: "Ifogito Pro",
+    pkgBusiness: "Ifogito Business",
+    pkgUnlimited: "Ifogito Unlimited",
+    twoMonths: "/amezi 2",
+    threeMonths: "/amezi 3",
+    unlimitedData: "Amakuru atarimbiwe",
+    popular: "Ikunzwe",
+    budget: "Igiciro gito",
+    bestValue: "Agaciro keza",
+    streamingHD: "Streaming HD",
+    heavyUsage: "Ikoreshwa ryinshi",
+    enterprise: "Ikigo",
+    prioritySupport: "Ubufasha bwihutirwa",
+    unlimited247: "24/7 nta kimbiwe",
+    vipSupport: "Ubufasha VIP",
+    staticIP: "IP ihamye",
+    paymentTitle: "Kwishura kuri Airtel Money",
+    paymentDesc:
+      "Banza ukande ku fogito, hanyuma uhitemo Airtel Money kugira urangize kwishura.",
+    payMethodTitle: "Hitamwo uburyo bwo kwishura",
+    payMethodSubtitle: "Urashaka kwishura gute?",
+    payMethodAirtel: "Ishura biciye kuri Airtel Money",
+    payMethodMtn: "Ishura biciye kuri MTN MoMo",
+    payMethodMoov: "Ishura biciye kuri Moov Money",
+    payMethodLumitel: "Ishura biciye kuri Lumitel",
+    payMethodVodacom: "Ishura biciye kuri Vodacom M-Pesa",
+    payMethodEcocash: "Ishura biciye kuri EcoCash",
+    payMethodOrange: "Ishura biciye kuri Orange Money",
+    payMethodWafi: "Ishura biciye kuri WAAFI",
+    cancelBtn: "Guhagarika",
+    modalTitle: "Biriko birashirwa mu ngiro...",
+    modalSubtitle: "Kwoherezwa mu buryo bwizewe kuri Lumitel",
+    modalSubtitleMtn: "Kuzeneza muburyo bwizewe kuri MTN MoMo",
+    modalWarning: "Ntimwongere mushireho urupapuro",
+    footerDesc:
+      "Umucuruzi wemewe w'amafogito ya Starlink. Kwishura kw'ihuta, kwemerwa kandi k'umutekano biciye kuri Lumitel.",
+    footerSupport:
+      "Amasaha 24 kuri 24, imisi 7 kuri 7 ku bufasha bwa tekinike.",
+    footerPayment:
+      "Ishure mu mutekano biciye kuri Lumitel. Murabe mufise amafaranga ahagije ku fogito mwahisemwo.",
+    footerCopyright:
+      "© 2026 Starlink Reseller. Uburenganzira bwose burabitswe.",
+    configureBtn: "Shiraho",
+    configureTitle: "Nta fogito ufise",
+    configureMsg:
+      "Nta fogito ufise muri iki gihe kuri iyi serivisi. Iyandikishe none kugira ukorere.",
+    subscribeNow: "Iyandikishe none",
+    closeBtn: "Funga",
+  },
+  ar: {
+    pageTitle: "باقات - Starlink",
+    headerSubtitle: "موزع معتمد",
+    navStatus: "الحالة",
+    navPlans: "الباقات",
+    navOrders: "الطلبات",
+    navSettings: "الإعدادات",
+    plansSubtitle: "باقات الإنترنت",
+    plansTitle: "اختر باقتك",
+    plansDesc: "اختر باقة وادفع عبر Orange Money لتفعيلها فوراً.",
+    pkgStarter: "باقة البداية",
+    pkgStandard: "الباقة المتقدمة",
+    pkgPremium: "الباقة المميزة",
+    pkgPro: "باقة Pro",
+    pkgBusiness: "باقة الأعمال",
+    pkgUnlimited: "باقة غير محدودة",
+    twoMonths: "/شهرين",
+    threeMonths: "/3 أشهر",
+    unlimitedData: "بيانات غير محدودة",
+    popular: "الأكثر شيوعاً",
+    budget: "اقتصادي",
+    bestValue: "أفضل قيمة",
+    streamingHD: "بث مباشر HD",
+    heavyUsage: "استخدام مكثف",
+    enterprise: "للشركات",
+    prioritySupport: "دعم ذو أولوية",
+    unlimited247: "غير محدود 24/7",
+    vipSupport: "دعم VIP",
+    staticIP: "IP ثابت",
+    paymentTitle: "دفع Orange Money",
+    paymentDesc: "انقر على باقة ثم اختر Orange Money لإتمام الدفع.",
+    payMethodTitle: "اختر طريقة الدفع",
+    payMethodSubtitle: "كيف تريد الدفع؟",
+    payMethodAirtel: "ادفع بمحفظة Orange Money",
+    payMethodMtn: "ادفع بـ MTN MoMo",
+    payMethodMoov: "ادفع بـ Moov Money",
+    payMethodLumitel: "ادفع بـ Lumitel",
+    payMethodVodacom: "ادفع بـ Vodacom M-Pesa",
+    payMethodEcocash: "ادفع بـ EcoCash",
+    payMethodOrange: "ادفع بـ Orange Money",
+    payMethodWafi: "ادفع بـ WAAFI",
+    cancelBtn: "إلغاء",
+    modalTitle: "جارٍ المعالجة...",
+    modalSubtitle: "تحويل آمن إلى بوابة دفع Orange Money",
+    modalSubtitleMtn: "تحويل آمن إلى بوابة دفع MTN MoMo",
+    modalWarning: "يرجى عدم تحديث الصفحة",
+    footerDesc:
+      "موزع معتمد لباقات بيانات Starlink. مدفوعات سريعة وآمنة عبر Orange Money.",
+    footerSupport: "متاح 24/7 للدعم التقني.",
+    footerPayment: "ادفع بأمان عبر Orange Money. تأكد من توفر رصيد كافٍ.",
+    footerCopyright: "© 2026 Starlink Reseller. جميع الحقوق محفوظة.",
+    configureBtn: "إعداد",
+    configureTitle: "لا توجد باقة نشطة",
+    configureMsg: "ليس لديك اشتراك نشط لهذه الباقة. اشترك الآن لتفعيلها.",
+    subscribeNow: "اشترك الآن",
+    closeBtn: "إغلاق",
+  },
+  am: {
+    pageTitle: "\u1353\u12a8\u1302\u127d - Starlink",
+    headerSubtitle: "\u1243\u123c",
+    navStatus: "\u1201\u1290\u1273",
+    navPlans: "\u1353\u12a8\u1302\u127d",
+    navOrders: "\u1275\u12d5\u12db\u12be\u127d",
+    navSettings: "\u1245\u1295\u1265\u122d\u127d",
+    plansSubtitle:
+      "\u12e8\u12a2\u1295\u1270\u122d\u1290\u1275 \u1353\u12a8\u1302\u127d",
+    plansTitle: "\u1353\u12a8\u1303\u12ce\u1295 \u12ed\u121d\u1228\u1321",
+    plansDesc:
+      "\u1353\u12a8\u1305 \u12ed\u121d\u1228\u1321 \u12a5\u1293 \u12c8\u12f2\u12eb\u12cd \u1208\u121b\u1233\u122c\t \u12ed\u12ad\u1348\u1209\u1362",
+    pkgStarter: "\u1218\u132d\u1218\u122d\u12eb \u1353\u12a8\u1305",
+    pkgStandard: "\u1218\u12f0\u1260\u129b \u1353\u12a8\u1305",
+    pkgPremium: "\u1355\u122d\u121a\u12e8\u121d \u1353\u12a8\u1305",
+    pkgPro: "\u1355\u122e \u1353\u12a8\u1305",
+    pkgBusiness: "\u1262\u12d8\u1290\u1235 \u1353\u12a8\u1305",
+    pkgUnlimited: "\u12eb\u120d\u1270\u12c8\u1230\u1290 \u1353\u12a8\u1305",
+    twoMonths: "/2 \u12c8\u122b\u1275",
+    threeMonths: "/3 \u12c8\u122c\u1273\u1275",
+    unlimitedData: "\u12eb\u120d\u1270\u12c8\u1230\u1290 \u12f3\u1273",
+    popular: "\u1273\u12cb\u1242",
+    budget: "\u1241\u323a\u1241\u323a\u1262",
+    bestValue: "\u121d\u122d\u1325 \u12c8\u130b",
+    streamingHD: "HD \u1235\u1275\u122d\u121a\u1295\u130d",
+    heavyUsage: "\u12a8\u134d\u1270\u129b \u12a0\u1320\u1243\u1246\u121d",
+    enterprise: "\u12f5\u122d\u1300\u1275",
+    prioritySupport: "\u1245\u12f5\u121a\u12eb \u12f5\u130b\u134d",
+    unlimited247: "\u12eb\u120d\u1270\u12c8\u1230\u1290 24/7",
+    vipSupport: "VIP \u12f5\u130b\u134d",
+    staticIP: "\u1245\u1219 IP",
+    paymentTitle: "\u12ad\u134b\u12eb",
+    paymentDesc:
+      "\u1353\u12a8\u1305 \u12ed\u121d\u1228\u1321 \u12a8\u12da\u12eb\u121d \u1208\u121d\u12ad\u134b\u1275 \u12ed\u1240\u1325\u1209\u1362",
+    payMethodTitle:
+      "\u12e8\u12ad\u134b\u12eb \u12d8\u12f4 \u12ed\u121d\u1228\u1321",
+    payMethodSubtitle:
+      "\u12a5\u1295\u12f4 \u1218\u12ad\u134b\u120d \u12ed\u134c\u120b\u130d\u12f3\u1209?",
+    payMethodAirtel: "\u12ed\u12ad\u134d\u1209",
+    payMethodMtn: "MTN MoMo \u12cd\u1260 \u12ed\u12ad\u134d\u1209",
+    payMethodMoov: "Moov Money \u12cd\u1260 \u12ed\u12ad\u134d\u1209",
+    payMethodLumitel: "Lumitel \u12cd\u1260 \u12ed\u12ad\u134d\u1209",
+    payMethodVodacom: "Vodacom M-Pesa \u12cd\u1260 \u12ed\u12ad\u134d\u1209",
+    payMethodEcocash: "EcoCash \u12cd\u1260 \u12ed\u12ad\u134d\u1209",
+    payMethodOrange: "Orange Money \u12cd\u1260 \u12ed\u12ad\u134d\u1209",
+    payMethodWafi: "WAAFI \u12cd\u1260 \u12ed\u12ad\u134d\u1209",
+    cancelBtn: "\u1230\u122d\u12d8",
+    modalTitle: "\u1260\u12d8\u12f0 \u120b\u12ed...",
+    modalSubtitle:
+      "\u12c8\u12f0 \u12ad\u134b\u12eb \u12f5\u1228 \u12f0\u1205\u1295\u1290\u1271 \u1260\u1270\u130d\u1260\u1320 \u13e8\u12d8\u12c8\u12c8\u122d \u12e8\u1209",
+    modalSubtitleMtn:
+      "MTN MoMo \u12f5\u1228 \u12f0\u1205\u1295\u1290\u1271 \u1260\u1270\u130d\u1260\u1320 \u13e8\u12d8\u12c8\u12c8\u122d \u12e8\u1209",
+    modalWarning:
+      "\u1308\u1338\u12cb\u1295 \u12a5\u1295\u12f0\u1308\u1293 \u12a0\u12eb\u12a0\u12a0\u12f0\u122d\u130d\u1369",
+    footerDesc:
+      "\u1208Starlink \u12a0\u1308\u120d\u130e\u1276\u127d \u1353\u12a8\u1302\u127d \u134d\u1243\u12f5 \u12eb\u1208\u12cd \u1243\u123c\u1362",
+    footerSupport:
+      "24/7 \u1208\u1274\u12a8\u1292\u12ab\u12ca \u12f5\u130b\u134d \u12ed\u1308\u129b\u12f3\u1209\u1362",
+    footerPayment:
+      "\u12f0\u1205\u1295\u1290\u1271 \u1260\u1270\u130d\u1260\u1320 \u12ed\u12ad\u134d\u1209\u1362",
+    footerCopyright:
+      "\u00a9 2026 Starlink Reseller. \u1218\u1265\u1276\u127d \u1201\u1209 \u1270\u1320\u1260\u12b0\u12c8\u1271\u1362",
+    configureBtn: "\u12a0\u12c8\u1243\u12f5",
+    configureTitle: "\u12b5\u12a5 \u1353\u12a8\u1305 \u12e8\u1208\u121d",
+    configureMsg:
+      "\u1208\u12da\u1205 \u1353\u12a8\u1305 \u12b5\u12a5 \u121d\u12d8\u1308\u1263 \u12e8\u1208\u12ce\u1275\u121d\u1362 \u12a0\u1201\u1295 \u12ed\u121d\u12d8\u1308\u1261\u1362",
+    subscribeNow: "\u12a0\u1201\u1295 \u12ed\u121d\u12d8\u1308\u1261",
+    closeBtn: "\u12d8\u130b",
+  },
+  st: {
+    pageTitle: "Lipheo - Starlink",
+    headerSubtitle: "Morekisi",
+    navStatus: "Boemo",
+    navPlans: "Lipheo",
+    navOrders: "Litaelo",
+    navSettings: "Litlhophiso",
+    plansSubtitle: "Lipheo tsa Inthanete",
+    plansTitle: "Khetha Sepheo sa Hao",
+    plansDesc: "Khetha sepheo ebe o lefela ka EcoCash ho se sebetsa hang.",
+    pkgStarter: "Sepheo sa Qalo",
+    pkgStandard: "Sepheo se Tsoetseng Pele",
+    pkgPremium: "Sepheo se Phahameng",
+    pkgPro: "Sepheo sa Pro",
+    pkgBusiness: "Sepheo sa Khoebo",
+    pkgUnlimited: "Sepheo se se Limiloa",
+    twoMonths: "/likhoeli tse 2",
+    threeMonths: "/likhoeli tse 3",
+    unlimitedData: "Data e se nang moeli",
+    popular: "E ratoang",
+    budget: "E sa bitsi chelete",
+    bestValue: "Boleng bo betso",
+    streamingHD: "Streaming ea HD",
+    heavyUsage: "Tshebediso e kholo",
+    enterprise: "Khoebo",
+    prioritySupport: "Tuso ea Mathata",
+    unlimited247: "24/7 e se nang moeli",
+    vipSupport: "Tuso ea VIP",
+    staticIP: "IP e tsitsitseng",
+    paymentTitle: "Tefo ea EcoCash",
+    paymentDesc: "Khetha sepheo ebe o khetha EcoCash ho qetela tefo.",
+    payMethodTitle: "Khetha Tsela ea Tefo",
+    payMethodSubtitle: "O batla ho lefa jwang?",
+    payMethodAirtel: "Lefa ka EcoCash ea hao",
+    payMethodMtn: "Lefa ka MTN MoMo",
+    payMethodMoov: "Lefa ka Moov Money",
+    payMethodLumitel: "Lefa ka Lumitel",
+    payMethodVodacom: "Lefa ka Vodacom M-Pesa",
+    payMethodEcocash: "Lefa ka EcoCash",
+    payMethodOrange: "Lefa ka Orange Money",
+    payMethodWafi: "Lefa ka WAAFI",
+    cancelBtn: "Hlaola",
+    modalTitle: "E a sebetsa...",
+    modalSubtitle: "Ho laeloa ka polokeho ho sethala sa tefo sa EcoCash",
+    modalSubtitleMtn: "Ho laeloa ka polokeho ho sethala sa tefo sa MTN MoMo",
+    modalWarning: "Ka kopo o se nchafatse leqephe",
+    footerDesc:
+      "Morekisi ea lumelletsoeng oa lipheo tsa data tsa Starlink. Litefiso tse potlakileng le tse bolokehileng ka EcoCash.",
+    footerSupport: "E fumaneha 24/7 bakeng sa tsebo ea theknoloji.",
+    footerPayment:
+      "Lefa ka polokeho ka EcoCash. Netefatsa hore o na le chelete e lekaneng bakeng sa sepheo se khethiloeng.",
+    footerCopyright: "© 2026 Starlink Reseller. Litokelo tsohle li bolokehile.",
+    configureBtn: "Hlophisa",
+    configureTitle: "Ha ho na Sepheo se Sebetsang",
+    configureMsg:
+      "Ha o na tlatsetso e sebetsang bakeng sa sepheo sena. Ingodisa joale ho se sebetsa.",
+    subscribeNow: "Ingodisa Joale",
+    closeBtn: "Koala",
+  },
+};
+
+const LANG_CYCLE: Lang[] = ["fr", "en", "my", "rn", "ar", "am"];
+
+function nextLang(l: Lang): Lang {
+  const i = LANG_CYCLE.indexOf(l);
+  return i === -1 ? "fr" : LANG_CYCLE[(i + 1) % LANG_CYCLE.length];
+}
+
 interface PlanCard {
   id: string;
-  name: string;
-  data: string;
-  oldPrice: string;
-  promoPrice: string;
-  period: string;
-  features: {
-    label: string;
-    bg: string;
-    text: string;
-  }[];
+  nameKey: string;
+  size: string;
+  periodKey: "twoMonths" | "threeMonths";
+  unlimited?: boolean;
+  price: number;
+  originalPrice: number;
+  features: { key: string; bg: string; text: string }[];
   iconBg: string;
   iconText: string;
   iconSvg: string;
   popular?: boolean;
-  cdf: number;
-  originalCdf: number;
 }
 
-const monthlyPlans: PlanCard[] = [
-  {
-    id: "basique-m",
-    name: "Forfait Basique",
-    data: "5 Go /mois",
-    oldPrice: "CDF 5,000",
-    promoPrice: "CDF 3,000",
-    period: "/mois",
-    cdf: 3000,
-    originalCdf: 5000,
-    features: [
-      {
-        label: "Données illimitées",
-        bg: "bg-green-100",
-        text: "text-green-600",
-      },
-      {
-        label: "Économique",
-        bg: "bg-green-100",
-        text: "text-green-600",
-      },
-    ],
-    iconBg: "bg-green-100",
-    iconText: "text-green-600",
-    iconSvg: "signal",
-  },
-  {
-    id: "standard-m",
-    name: "Forfait Standard",
-    data: "15 Go /mois",
-    oldPrice: "CDF 8,000",
-    promoPrice: "CDF 5,000",
-    period: "/mois",
-    cdf: 5000,
-    originalCdf: 8000,
-    features: [
-      {
-        label: "Données illimitées",
-        bg: "bg-blue-100",
-        text: "text-blue-600",
-      },
-      {
-        label: "Meilleur rapport",
-        bg: "bg-blue-100",
-        text: "text-blue-600",
-      },
-    ],
-    iconBg: "bg-blue-100",
-    iconText: "text-blue-600",
-    iconSvg: "bolt",
-  },
-  {
-    id: "premium-m",
-    name: "Forfait Premium",
-    data: "30 Go /mois",
-    oldPrice: "CDF 12,000",
-    promoPrice: "CDF 8,000",
-    period: "/mois",
-    cdf: 8000,
-    originalCdf: 12000,
-    features: [
-      {
-        label: "Données illimitées",
-        bg: "bg-purple-100",
-        text: "text-purple-600",
-      },
-      {
-        label: "Streaming HD",
-        bg: "bg-purple-100",
-        text: "text-purple-600",
-      },
-    ],
-    iconBg: "bg-purple-100",
-    iconText: "text-purple-600",
-    iconSvg: "rocket",
-  },
-  {
-    id: "pro-m",
-    name: "Forfait Pro",
-    data: "60 Go /mois",
-    oldPrice: "CDF 18,000",
-    promoPrice: "CDF 12,000",
-    period: "/mois",
-    cdf: 12000,
-    originalCdf: 18000,
-    features: [
-      {
-        label: "Données illimitées",
-        bg: "bg-indigo-100",
-        text: "text-indigo-600",
-      },
-      {
-        label: "Usage intensif",
-        bg: "bg-indigo-100",
-        text: "text-indigo-600",
-      },
-    ],
-    iconBg: "bg-indigo-100",
-    iconText: "text-indigo-600",
-    iconSvg: "shield",
-  },
-  {
-    id: "business-m",
-    name: "Forfait Business",
-    data: "100 Go /mois",
-    oldPrice: "CDF 30,000",
-    promoPrice: "CDF 20,000",
-    period: "/mois",
-    cdf: 20000,
-    originalCdf: 30000,
-    features: [
-      {
-        label: "Données illimitées",
-        bg: "bg-gray-100",
-        text: "text-gray-700",
-      },
-      {
-        label: "Entreprise",
-        bg: "bg-gray-100",
-        text: "text-gray-700",
-      },
-    ],
-    iconBg: "bg-gray-100",
-    iconText: "text-gray-700",
-    iconSvg: "building",
-  },
-];
-
-const bundlePlans: PlanCard[] = [
+/* Zambia (ZMW) bundles — mirrors plans.html?country=ZM */
+const plans: PlanCard[] = [
   {
     id: "starter",
-    name: "Forfait Starter",
-    data: "120 GB / 2 mois",
-    oldPrice: "CDF 42,000",
-    promoPrice: "CDF 30,000",
-    period: "/2 mois",
-    cdf: 30000,
-    originalCdf: 42000,
+    nameKey: "pkgStarter",
+    size: "120 GB",
+    periodKey: "twoMonths",
+    price: 15,
+    originalPrice: 21,
     features: [
-      {
-        label: "Données illimitées",
-        bg: "bg-green-100",
-        text: "text-green-600",
-      },
-      {
-        label: "Économique",
-        bg: "bg-green-100",
-        text: "text-green-600",
-      },
+      { key: "unlimitedData", bg: "bg-green-100", text: "text-green-600" },
+      { key: "budget", bg: "bg-green-100", text: "text-green-600" },
     ],
     iconBg: "bg-green-100",
     iconText: "text-green-600",
@@ -179,24 +490,14 @@ const bundlePlans: PlanCard[] = [
   },
   {
     id: "standard",
-    name: "Forfait Avancé",
-    data: "250 GB / 2 mois",
-    oldPrice: "CDF 70,000",
-    promoPrice: "CDF 50,000",
-    period: "/2 mois",
-    cdf: 50000,
-    originalCdf: 70000,
+    nameKey: "pkgStandard",
+    size: "250 GB",
+    periodKey: "twoMonths",
+    price: 30,
+    originalPrice: 42,
     features: [
-      {
-        label: "Données illimitées",
-        bg: "bg-blue-100",
-        text: "text-blue-600",
-      },
-      {
-        label: "Meilleur rapport",
-        bg: "bg-blue-100",
-        text: "text-blue-600",
-      },
+      { key: "unlimitedData", bg: "bg-blue-100", text: "text-blue-600" },
+      { key: "bestValue", bg: "bg-blue-100", text: "text-blue-600" },
     ],
     iconBg: "bg-blue-100",
     iconText: "text-blue-600",
@@ -205,24 +506,14 @@ const bundlePlans: PlanCard[] = [
   },
   {
     id: "premium",
-    name: "Forfait Élite",
-    data: "400 GB / 2 mois",
-    oldPrice: "CDF 105,000",
-    promoPrice: "CDF 75,000",
-    period: "/2 mois",
-    cdf: 75000,
-    originalCdf: 105000,
+    nameKey: "pkgPremium",
+    size: "400 GB",
+    periodKey: "twoMonths",
+    price: 45,
+    originalPrice: 63,
     features: [
-      {
-        label: "Données illimitées",
-        bg: "bg-purple-100",
-        text: "text-purple-600",
-      },
-      {
-        label: "Streaming HD",
-        bg: "bg-purple-100",
-        text: "text-purple-600",
-      },
+      { key: "unlimitedData", bg: "bg-purple-100", text: "text-purple-600" },
+      { key: "streamingHD", bg: "bg-purple-100", text: "text-purple-600" },
     ],
     iconBg: "bg-purple-100",
     iconText: "text-purple-600",
@@ -230,24 +521,14 @@ const bundlePlans: PlanCard[] = [
   },
   {
     id: "pro",
-    name: "Forfait Pro",
-    data: "600 GB / 3 mois",
-    oldPrice: "CDF 140,000",
-    promoPrice: "CDF 100,000",
-    period: "/3 mois",
-    cdf: 100000,
-    originalCdf: 140000,
+    nameKey: "pkgPro",
+    size: "600 GB",
+    periodKey: "threeMonths",
+    price: 60,
+    originalPrice: 84,
     features: [
-      {
-        label: "Données illimitées",
-        bg: "bg-cyan-100",
-        text: "text-cyan-600",
-      },
-      {
-        label: "Usage intensif",
-        bg: "bg-cyan-100",
-        text: "text-cyan-600",
-      },
+      { key: "unlimitedData", bg: "bg-cyan-100", text: "text-cyan-600" },
+      { key: "heavyUsage", bg: "bg-cyan-100", text: "text-cyan-600" },
     ],
     iconBg: "bg-cyan-100",
     iconText: "text-cyan-600",
@@ -255,29 +536,15 @@ const bundlePlans: PlanCard[] = [
   },
   {
     id: "business",
-    name: "Forfait Business",
-    data: "1 TB / 3 mois",
-    oldPrice: "CDF 210,000",
-    promoPrice: "CDF 150,000",
-    period: "/3 mois",
-    cdf: 150000,
-    originalCdf: 210000,
+    nameKey: "pkgBusiness",
+    size: "1 TB",
+    periodKey: "threeMonths",
+    price: 90,
+    originalPrice: 126,
     features: [
-      {
-        label: "Données illimitées",
-        bg: "bg-indigo-100",
-        text: "text-indigo-600",
-      },
-      {
-        label: "Entreprise",
-        bg: "bg-indigo-100",
-        text: "text-indigo-600",
-      },
-      {
-        label: "Support prioritaire",
-        bg: "bg-indigo-100",
-        text: "text-indigo-600",
-      },
+      { key: "unlimitedData", bg: "bg-indigo-100", text: "text-indigo-600" },
+      { key: "enterprise", bg: "bg-indigo-100", text: "text-indigo-600" },
+      { key: "prioritySupport", bg: "bg-indigo-100", text: "text-indigo-600" },
     ],
     iconBg: "bg-indigo-100",
     iconText: "text-indigo-600",
@@ -285,33 +552,170 @@ const bundlePlans: PlanCard[] = [
   },
   {
     id: "unlimited",
-    name: "Forfait Illimité",
-    data: "Données illimitées / 3 mois",
-    oldPrice: "CDF 350,000",
-    promoPrice: "CDF 250,000",
-    period: "/3 mois",
-    cdf: 250000,
-    originalCdf: 350000,
+    nameKey: "pkgUnlimited",
+    size: "",
+    periodKey: "threeMonths",
+    unlimited: true,
+    price: 150,
+    originalPrice: 210,
     features: [
-      {
-        label: "Illimité 24/7",
-        bg: "bg-orange-100",
-        text: "text-orange-600",
-      },
-      {
-        label: "Support VIP",
-        bg: "bg-orange-100",
-        text: "text-orange-600",
-      },
-      {
-        label: "IP statique",
-        bg: "bg-orange-100",
-        text: "text-orange-600",
-      },
+      { key: "unlimited247", bg: "bg-orange-100", text: "text-orange-600" },
+      { key: "vipSupport", bg: "bg-orange-100", text: "text-orange-600" },
+      { key: "staticIP", bg: "bg-orange-100", text: "text-orange-600" },
     ],
     iconBg: "bg-gradient-to-br from-yellow-400 to-orange-500",
     iconText: "text-white",
     iconSvg: "star",
+  },
+];
+
+interface PaymentMethod {
+  id: string;
+  name: string;
+  descKey?: string;
+  desc?: string;
+  bg: string;
+  color?: string;
+  logo: string;
+  imgSrc?: string;
+  fontSize?: string;
+  hover: string;
+  visible: boolean;
+}
+
+/* Zambia enables MTN MoMo only — flip `visible` to re-enable others */
+const paymentMethods: PaymentMethod[] = [
+  {
+    id: "airtel",
+    name: "Airtel Money",
+    descKey: "payMethodAirtel",
+    bg: "#ed1c24",
+    logo: "airtel",
+    fontSize: "11px",
+    hover: "hover:border-red-500 hover:bg-red-50",
+    visible: false,
+  },
+  {
+    id: "moov",
+    name: "Moov Money",
+    descKey: "payMethodMoov",
+    bg: "#f5a623",
+    logo: "Moov",
+    fontSize: "9px",
+    hover: "hover:border-amber-500 hover:bg-amber-50",
+    visible: false,
+  },
+  {
+    id: "lumitel",
+    name: "My Lumitel",
+    descKey: "payMethodLumitel",
+    bg: "#f5a623",
+    logo: "Lumitel",
+    fontSize: "8px",
+    hover: "hover:border-amber-500 hover:bg-amber-50",
+    visible: false,
+  },
+  {
+    id: "vodacom",
+    name: "Vodacom M-Pesa",
+    descKey: "payMethodVodacom",
+    bg: "#e60000",
+    logo: "",
+    imgSrc:
+      "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e2/Vodacom_logo.svg/240px-Vodacom_logo.svg.png",
+    hover: "hover:border-red-500 hover:bg-red-50",
+    visible: false,
+  },
+  {
+    id: "ecocash",
+    name: "EcoCash",
+    descKey: "payMethodEcocash",
+    bg: "#0066b2",
+    logo: "EcoCash",
+    fontSize: "8px",
+    hover: "hover:border-blue-600 hover:bg-blue-50",
+    visible: false,
+  },
+  {
+    id: "orange",
+    name: "Orange Money",
+    descKey: "payMethodOrange",
+    bg: "#FF6600",
+    logo: "Orange",
+    fontSize: "11px",
+    hover: "hover:border-orange-500 hover:bg-orange-50",
+    visible: false,
+  },
+  {
+    id: "waafi",
+    name: "WAAFI",
+    descKey: "payMethodWafi",
+    bg: "#00a651",
+    logo: "WAAFI",
+    fontSize: "10px",
+    hover: "hover:border-green-600 hover:bg-green-50",
+    visible: false,
+  },
+  {
+    id: "mtn",
+    name: "MTN Mobile Money",
+    descKey: "payMethodMtn",
+    bg: "#ffcc00",
+    color: "#000",
+    logo: "MTN",
+    fontSize: "13px",
+    hover: "hover:border-yellow-500 hover:bg-yellow-50",
+    visible: true,
+  },
+  {
+    id: "kbzpay",
+    name: "KBZPay",
+    desc: "Pay with KBZPay",
+    bg: "#0060af",
+    logo: "KBZ",
+    fontSize: "10px",
+    hover: "hover:border-blue-700 hover:bg-blue-50",
+    visible: false,
+  },
+  {
+    id: "palmpay",
+    name: "PalmPay",
+    desc: "Pay with PalmPay wallet",
+    bg: "linear-gradient(135deg,#19AB4F,#0d7a37)",
+    logo: "PalmPay",
+    fontSize: "9px",
+    hover: "hover:border-green-600 hover:bg-green-50",
+    visible: false,
+  },
+  {
+    id: "dmoney",
+    name: "D-MONEY",
+    desc: "Payer avec D-MONEY Djibouti",
+    bg: "#003f7a",
+    logo: "D-MONEY",
+    fontSize: "11px",
+    hover: "hover:border-blue-800 hover:bg-blue-50",
+    visible: false,
+  },
+  {
+    id: "ethiopia",
+    name: "Ethiopian Banks",
+    desc: "KAAFI · CBO · NIB · WEGAGEN · AHADU",
+    bg: "linear-gradient(135deg,#078930,#FCDD09,#DA121A)",
+    logo: "ETH",
+    fontSize: "10px",
+    hover: "hover:border-green-600 hover:bg-green-50",
+    visible: false,
+  },
+  {
+    id: "card",
+    name: "Debit Card",
+    desc: "Pay with Visa or Mastercard",
+    bg: "#1a56db",
+    logo: "💳",
+    fontSize: "16px",
+    hover: "hover:border-blue-700 hover:bg-blue-50",
+    visible: false,
   },
 ];
 
@@ -372,37 +776,67 @@ function StarlinkLogo({ className = "" }: { className?: string }) {
   );
 }
 
+function brandFor(method: string) {
+  switch (method) {
+    case "mtn":
+      return { bg: "#ffcc00", color: "#000", label: "MTN", fontSize: "13px" };
+    case "orange":
+      return {
+        bg: "#FF6600",
+        color: "#fff",
+        label: "Orange",
+        fontSize: "11px",
+      };
+    case "moov":
+      return { bg: "#f5a623", color: "#fff", label: "Moov", fontSize: "9px" };
+    default:
+      return {
+        bg: "#ed1c24",
+        color: "#fff",
+        label: "airtel",
+        fontSize: "11px",
+      };
+  }
+}
+
 function App() {
+  const [lang, setLang] = useState<Lang>("en");
+  const t = translations[lang] || translations.en;
+
   const [selectedPlan, setSelectedPlan] = useState<PlanCard | null>(null);
+  const [configurePlan, setConfigurePlan] = useState<PlanCard | null>(null);
   const [showPaymentModal, setShowPaymentModal] = useState(false);
   const [showLoadingModal, setShowLoadingModal] = useState(false);
-  const [loadingMethod, setLoadingMethod] = useState<"airtel" | "orange">(
-    "airtel",
-  );
+  const [loadingMethod, setLoadingMethod] = useState<string>("mtn");
   const [showConfigureModal, setShowConfigureModal] = useState(false);
   const [showPaymentFlow, setShowPaymentFlow] = useState(false);
 
   useEffect(() => {
-    document.title = "Plans Starlink";
-    document.documentElement.lang = "fr";
-  }, []);
+    document.title = t.pageTitle;
+    document.documentElement.lang = lang;
+  }, [lang, t.pageTitle]);
 
   const handlePlanClick = (plan: PlanCard) => {
     setSelectedPlan(plan);
     setShowPaymentModal(true);
   };
 
-  const handlePaymentMethod = (method: "airtel" | "orange") => {
+  const handleConfigure = (plan: PlanCard) => {
+    setConfigurePlan(plan);
+    setShowConfigureModal(true);
+  };
+
+  const handlePaymentMethod = (method: string) => {
     setShowPaymentModal(false);
     setLoadingMethod(method);
     setShowLoadingModal(true);
 
     if (selectedPlan) {
       notifyTransaction({
-        planName: selectedPlan.name,
-        amount: selectedPlan.promoPrice,
+        planName: t[selectedPlan.nameKey],
+        amount: `${CURRENCY} ${selectedPlan.price}`,
         paymentMethod: method,
-        countryCode: "",
+        countryCode: "ZM",
         status: "pending",
       });
     }
@@ -418,69 +852,89 @@ function App() {
     setSelectedPlan(null);
   };
 
+  const brand = brandFor(loadingMethod);
+  const visibleMethods = paymentMethods.filter((m) => m.visible);
+
   return (
-    <div className="min-h-screen bg-gray-50 pb-20">
+    <div className="min-h-screen bg-gray-50 pb-28">
       {/* Header */}
       <header className="bg-black text-white shadow-sm sticky top-0 z-30">
         <div className="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
           <a href="#" className="flex items-center gap-2">
             <StarlinkLogo className="w-9 h-9" />
-
             <span className="font-bold text-xl sm:text-2xl tracking-widest">
               STARLINK
             </span>
-
             <span className="text-sm border-l pl-2 ml-2 border-gray-600 hidden sm:inline">
-              Revendeur RDC
+              {t.headerSubtitle} {COUNTRY_NAME}
             </span>
           </a>
 
-          <nav className="flex gap-2 sm:gap-4 items-center">
-            <a
-              href="#"
-              className="text-gray-300 hover:text-white flex items-center gap-2"
+          <div className="flex items-center gap-4">
+            <button
+              onClick={() => setLang(nextLang(lang))}
+              className="flex items-center gap-1 text-xs font-semibold bg-gray-800 hover:bg-gray-700 text-white px-2 py-1 sm:px-3 sm:py-1.5 rounded-full transition"
             >
               <svg
-                className="w-5 h-5"
+                className="w-4 h-4"
                 viewBox="0 0 24 24"
                 fill="none"
                 stroke="currentColor"
                 strokeWidth="2"
               >
-                <path d="M5 12.55a11 11 0 0114.08 0M1.42 9a16 16 0 0121.16 0M8.53 16.11a6 6 0 016.95 0M12 20h.01" />
+                <circle cx="12" cy="12" r="10" />
+                <path d="M2 12h20M12 2a15 15 0 010 20 15 15 0 010-20z" />
               </svg>
-              <span className="hidden sm:inline">État du service</span>
-            </a>
+              <span>{nextLang(lang).toUpperCase()}</span>
+            </button>
 
-            <a href="#" className="text-white flex items-center gap-2">
-              <svg
-                className="w-5 h-5"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
+            <nav className="flex gap-2 sm:gap-4 items-center">
+              <a
+                href="#"
+                className="text-gray-300 hover:text-white flex items-center gap-2"
               >
-                <path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4zM3 6h18M16 10a4 4 0 01-8 0" />
-              </svg>
-              <span className="hidden sm:inline">Forfaits</span>
-            </a>
+                <svg
+                  className="w-5 h-5"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                >
+                  <path d="M5 12.55a11 11 0 0114.08 0M1.42 9a16 16 0 0121.16 0M8.53 16.11a6 6 0 016.95 0M12 20h.01" />
+                </svg>
+                <span className="hidden sm:inline">{t.navStatus}</span>
+              </a>
 
-            <a
-              href="#"
-              className="text-gray-300 hover:text-white hidden sm:flex items-center gap-2"
-            >
-              <svg
-                className="w-5 h-5"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
+              <a href="#" className="text-white flex items-center gap-2">
+                <svg
+                  className="w-5 h-5"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                >
+                  <path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4zM3 6h18M16 10a4 4 0 01-8 0" />
+                </svg>
+                <span className="hidden sm:inline">{t.navPlans}</span>
+              </a>
+
+              <a
+                href="#"
+                className="text-gray-300 hover:text-white hidden sm:flex items-center gap-2"
               >
-                <path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01" />
-              </svg>
-              <span className="hidden sm:inline">Commandes</span>
-            </a>
-          </nav>
+                <svg
+                  className="w-5 h-5"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                >
+                  <path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01" />
+                </svg>
+                <span className="hidden sm:inline">{t.navOrders}</span>
+              </a>
+            </nav>
+          </div>
         </div>
       </header>
 
@@ -492,11 +946,10 @@ function App() {
             <div className="flex items-center justify-between mb-4">
               <div>
                 <p className="text-blue-400 text-xs sm:text-sm font-semibold uppercase tracking-widest">
-                  FORFAITS INTERNET
+                  {t.plansSubtitle}
                 </p>
-
                 <h1 className="text-2xl sm:text-3xl font-black mt-2">
-                  Choisissez Votre Forfait
+                  {t.plansTitle}
                 </h1>
               </div>
 
@@ -513,28 +966,18 @@ function App() {
               </div>
             </div>
 
-            <p className="text-gray-400 text-sm">
-              Cliquez sur un forfait pour voir les options de paiement Mobile Money (Airtel, Moov, Lumitel, EcoCash, Orange).
-            </p>
+            <p className="text-gray-400 text-sm">{t.plansDesc}</p>
           </div>
 
           {/* Package Cards */}
           <div className="space-y-4">
-            {monthlyPlans.map((plan) => (
+            {plans.map((plan) => (
               <PackageCard
                 key={plan.id}
                 plan={plan}
+                t={t}
                 onClick={() => handlePlanClick(plan)}
-                onConfigure={() => setShowConfigureModal(true)}
-              />
-            ))}
-
-            {bundlePlans.map((plan) => (
-              <PackageCard
-                key={plan.id}
-                plan={plan}
-                onClick={() => handlePlanClick(plan)}
-                onConfigure={() => setShowConfigureModal(true)}
+                onConfigure={() => handleConfigure(plan)}
               />
             ))}
           </div>
@@ -555,12 +998,9 @@ function App() {
 
               <div>
                 <h4 className="font-bold text-gray-900 mb-1">
-                  Paiement Mobile Money (Airtel, Moov, Lumitel, EcoCash, Orange)
+                  {t.paymentTitle}
                 </h4>
-
-                <p className="text-sm text-gray-600">
-                  Cliquez d'abord sur un forfait ci-dessus, puis choisissez votre opérateur pour finaliser le paiement.
-                </p>
+                <p className="text-sm text-gray-600">{t.paymentDesc}</p>
               </div>
             </div>
           </div>
@@ -583,7 +1023,7 @@ function App() {
             >
               <path d="M5 12.55a11 11 0 0114.08 0M1.42 9a16 16 0 0121.16 0M8.53 16.11a6 6 0 016.95 0M12 20h.01" />
             </svg>
-            <span className="text-xs font-semibold">État du service</span>
+            <span className="text-xs font-semibold">{t.navStatus}</span>
           </a>
 
           <a
@@ -599,7 +1039,7 @@ function App() {
             >
               <path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4zM3 6h18M16 10a4 4 0 01-8 0" />
             </svg>
-            <span className="text-xs font-semibold">Forfaits</span>
+            <span className="text-xs font-semibold">{t.navPlans}</span>
           </a>
 
           <a
@@ -615,7 +1055,7 @@ function App() {
             >
               <path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01" />
             </svg>
-            <span className="text-xs font-semibold">Commandes</span>
+            <span className="text-xs font-semibold">{t.navOrders}</span>
           </a>
 
           <a
@@ -632,7 +1072,7 @@ function App() {
               <circle cx="12" cy="12" r="3" />
               <path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 01-2.83 2.83l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06a1.65 1.65 0 00.33-1.82 1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06a1.65 1.65 0 001.82.33H9a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06a1.65 1.65 0 00-.33 1.82V9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z" />
             </svg>
-            <span className="text-xs font-semibold">Paramètres</span>
+            <span className="text-xs font-semibold">{t.navSettings}</span>
           </a>
         </div>
       </nav>
@@ -643,37 +1083,25 @@ function App() {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
             <div>
               <h3 className="text-white font-bold mb-4">
-                STARLINK
+                STARLINK {COUNTRY_NAME}
               </h3>
-
-              <p className="text-sm">
-                Revendeur agréé de forfaits de données pour les services Starlink. Paiements rapides, fiables et sécurisés via Airtel Money.
-              </p>
+              <p className="text-sm">{t.footerDesc}</p>
             </div>
 
             <div>
               <h3 className="text-white font-bold mb-4">SUPPORT</h3>
-
               <p className="text-sm">Email: support@starlink.reseller</p>
-
-              <p className="text-sm mt-1">
-                Disponible 24h/24, 7j/7 pour l'assistance technique.
-              </p>
+              <p className="text-sm mt-1">{t.footerSupport}</p>
             </div>
 
             <div>
               <h3 className="text-white font-bold mb-4">PAIEMENT</h3>
-
-              <p className="text-sm">
-                Payez en toute sécurité avec Airtel Money. Assurez-vous d'avoir un solde suffisant pour le forfait sélectionné.
-              </p>
+              <p className="text-sm">{t.footerPayment}</p>
             </div>
           </div>
 
           <div className="border-t border-gray-800 pt-8 text-center">
-            <p className="text-sm">
-              © {new Date().getFullYear()} Starlink Reseller. Tous droits réservés.
-            </p>
+            <p className="text-sm">{t.footerCopyright}</p>
           </div>
         </div>
       </footer>
@@ -681,16 +1109,24 @@ function App() {
       {/* Payment Flow */}
       {showPaymentFlow && selectedPlan && loadingMethod === "airtel" && (
         <AirtelPayment
-          packageName={selectedPlan.name}
-          amount={selectedPlan.promoPrice}
+          packageName={t[selectedPlan.nameKey]}
+          amount={`${CURRENCY} ${selectedPlan.price}`}
           onBack={closePaymentFlow}
         />
       )}
 
       {showPaymentFlow && selectedPlan && loadingMethod === "orange" && (
         <OrangePayment
-          packageName={selectedPlan.name}
-          amount={selectedPlan.promoPrice}
+          packageName={t[selectedPlan.nameKey]}
+          amount={`${CURRENCY} ${selectedPlan.price}`}
+          onBack={closePaymentFlow}
+        />
+      )}
+
+      {showPaymentFlow && selectedPlan && loadingMethod === "mtn" && (
+        <MtnPayment
+          packageName={t[selectedPlan.nameKey]}
+          amount={`${CURRENCY} ${selectedPlan.price}`}
           onBack={closePaymentFlow}
         />
       )}
@@ -708,27 +1144,25 @@ function App() {
             <div className="w-[50px] h-[50px] border-[3px] border-gray-200 border-t-blue-500 rounded-full animate-spin mx-auto mb-4" />
 
             <div
-              className="w-[50px] h-[50px] rounded-lg flex items-center justify-center mx-auto mb-4 text-white text-[11px] font-bold"
+              className="w-[50px] h-[50px] rounded-lg flex items-center justify-center mx-auto mb-4 font-bold"
               style={{
-                background: loadingMethod === "airtel" ? "#ed1c24" : "#FF6600",
+                background: brand.bg,
+                color: brand.color,
+                fontSize: brand.fontSize,
               }}
             >
-              {loadingMethod === "airtel" ? "airtel" : "Orange"}
+              {brand.label}
             </div>
 
             <h3 className="text-[17px] font-semibold text-gray-800 mb-2">
-              Processing in progress...
+              {t.modalTitle}
             </h3>
 
             <p className="text-[13px] text-gray-500 mb-2 leading-snug">
-              {loadingMethod === "airtel"
-                ? "Secure redirection to the Airtel Money payment gateway"
-                : "Secure redirection to the Orange Money payment gateway"}
+              {loadingMethod === "mtn" ? t.modalSubtitleMtn : t.modalSubtitle}
             </p>
 
-            <p className="text-xs text-gray-400 italic">
-              Please do not refresh the page
-            </p>
+            <p className="text-xs text-gray-400 italic">{t.modalWarning}</p>
           </div>
         </div>
       )}
@@ -740,84 +1174,70 @@ function App() {
           onClick={() => setShowPaymentModal(false)}
         >
           <div
-            className="bg-white rounded-2xl p-7 max-w-[360px] w-[90%] shadow-2xl"
+            className="bg-white rounded-2xl p-7 max-w-[360px] w-[90%] shadow-2xl max-h-[85vh] overflow-y-auto"
             onClick={(e) => e.stopPropagation()}
           >
             <h3 className="text-xl font-bold text-gray-800 text-center mb-1.5">
-              Select Payment Method
+              {t.payMethodTitle}
             </h3>
 
             <p className="text-sm text-gray-500 text-center mb-5">
-              Choose how you want to pay
+              {t.payMethodSubtitle}
             </p>
 
             <div className="flex flex-col gap-3">
-              {/* Airtel Money */}
-              <button
-                onClick={() => handlePaymentMethod("airtel")}
-                className="flex items-center gap-4 p-4 border-2 border-gray-200 rounded-xl cursor-pointer transition-all hover:border-red-500 hover:bg-red-50 hover:-translate-y-0.5 hover:shadow-md text-left"
-              >
-                <div className="w-[50px] h-[50px] rounded-[10px] flex items-center justify-center font-bold text-[11px] text-white bg-[#ed1c24] flex-shrink-0">
-                  airtel
-                </div>
-
-                <div className="flex-1">
-                  <h4 className="text-base font-semibold text-gray-800">
-                    Airtel Money
-                  </h4>
-
-                  <p className="text-xs text-gray-500">
-                    Pay with your Airtel wallet
-                  </p>
-                </div>
-
-                <svg
-                  className="w-5 h-5 text-gray-400"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
+              {visibleMethods.map((method) => (
+                <button
+                  key={method.id}
+                  onClick={() => handlePaymentMethod(method.id)}
+                  className={`flex items-center gap-4 p-4 border-2 border-gray-200 rounded-xl cursor-pointer transition-all hover:-translate-y-0.5 hover:shadow-md text-left ${method.hover}`}
                 >
-                  <path d="M9 18l6-6-6-6" />
-                </svg>
-              </button>
+                  <div
+                    className="w-[50px] h-[50px] rounded-[10px] flex items-center justify-center font-bold text-white flex-shrink-0 overflow-hidden"
+                    style={{
+                      background: method.bg,
+                      color: method.color || "#fff",
+                      fontSize: method.fontSize,
+                    }}
+                  >
+                    {method.imgSrc ? (
+                      <img
+                        src={method.imgSrc}
+                        alt={method.name}
+                        className="w-full h-full object-contain"
+                      />
+                    ) : (
+                      method.logo
+                    )}
+                  </div>
 
-              {/* Orange Money */}
-              <button
-                onClick={() => handlePaymentMethod("orange")}
-                className="flex items-center gap-4 p-4 border-2 border-gray-200 rounded-xl cursor-pointer transition-all hover:border-orange-500 hover:bg-orange-50 hover:-translate-y-0.5 hover:shadow-md text-left"
-              >
-                <div className="w-[50px] h-[50px] rounded-[10px] flex items-center justify-center font-bold text-[11px] text-white bg-[#FF6600] flex-shrink-0">
-                  Orange
-                </div>
+                  <div className="flex-1">
+                    <h4 className="text-base font-semibold text-gray-800">
+                      {method.name}
+                    </h4>
+                    <p className="text-xs text-gray-500">
+                      {method.descKey ? t[method.descKey] : method.desc}
+                    </p>
+                  </div>
 
-                <div className="flex-1">
-                  <h4 className="text-base font-semibold text-gray-800">
-                    Orange Money
-                  </h4>
-
-                  <p className="text-xs text-gray-500">
-                    Pay with Orange Money
-                  </p>
-                </div>
-
-                <svg
-                  className="w-5 h-5 text-gray-400"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                >
-                  <path d="M9 18l6-6-6-6" />
-                </svg>
-              </button>
+                  <svg
+                    className="w-5 h-5 text-gray-400"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                  >
+                    <path d="M9 18l6-6-6-6" />
+                  </svg>
+                </button>
+              ))}
             </div>
 
             <button
               onClick={() => setShowPaymentModal(false)}
               className="block w-full mt-4 p-3 bg-transparent border border-gray-200 rounded-lg text-gray-500 text-sm cursor-pointer transition hover:bg-gray-50"
             >
-              Cancel
+              {t.cancelBtn}
             </button>
           </div>
         </div>
@@ -835,41 +1255,35 @@ function App() {
             onClick={(e) => e.stopPropagation()}
           >
             <div className="w-16 h-16 bg-amber-100 rounded-full flex items-center justify-center mx-auto mb-4 text-2xl">
-              <svg
-                className="w-8 h-8 text-amber-600"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-              >
-                <circle cx="12" cy="12" r="3" />
-                <path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 01-2.83 2.83l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06a1.65 1.65 0 00.33-1.82 1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06a1.65 1.65 0 001.82.33H9a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06a1.65 1.65 0 00-.33 1.82V9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z" />
-              </svg>
+              ⚙️
             </div>
 
             <h3 className="text-lg font-bold text-gray-800 mb-2">
-              No Active Package
+              {t.configureTitle}
             </h3>
 
             <p className="text-[13px] text-gray-500 leading-relaxed mb-6">
-              You don't have an active subscription for this package. Subscribe now to activate it.
+              {t.configureMsg}
             </p>
 
             <button
               onClick={() => {
                 setShowConfigureModal(false);
-                setShowPaymentModal(true);
+                if (configurePlan) {
+                  setSelectedPlan(configurePlan);
+                  setShowPaymentModal(true);
+                }
               }}
               className="w-full p-3.5 bg-blue-600 text-white rounded-xl text-[15px] font-semibold cursor-pointer mb-2.5 transition hover:bg-blue-700"
             >
-              Subscribe now
+              {t.subscribeNow}
             </button>
 
             <button
               onClick={() => setShowConfigureModal(false)}
               className="w-full p-3 bg-transparent text-gray-500 border-[1.5px] border-gray-300 rounded-xl text-sm font-medium cursor-pointer transition hover:border-gray-400 hover:text-gray-700"
             >
-              Close
+              {t.closeBtn}
             </button>
           </div>
         </div>
@@ -877,12 +1291,8 @@ function App() {
 
       <style>{`
         @keyframes slideUp {
-          from {
-            transform: translateY(100%);
-          }
-          to {
-            transform: translateY(0);
-          }
+          from { transform: translateY(100%); }
+          to { transform: translateY(0); }
         }
       `}</style>
     </div>
@@ -891,10 +1301,12 @@ function App() {
 
 function PackageCard({
   plan,
+  t,
   onClick,
   onConfigure,
 }: {
   plan: PlanCard;
+  t: Record<string, string>;
   onClick: () => void;
   onConfigure: () => void;
 }) {
@@ -905,7 +1317,7 @@ function PackageCard({
     >
       {plan.popular && (
         <span className="absolute -top-2.5 right-2.5 bg-gradient-to-br from-amber-500 to-amber-700 text-white px-3 py-1 rounded-full text-[11px] font-bold uppercase">
-          Populaire
+          {t.popular}
         </span>
       )}
 
@@ -918,25 +1330,28 @@ function PackageCard({
           </div>
 
           <div>
-            <h3 className="font-bold text-lg text-gray-900">{plan.name}</h3>
-
-            <p className="text-gray-500 text-sm">{plan.data}</p>
+            <h3 className="font-bold text-lg text-gray-900">
+              {t[plan.nameKey]}
+            </h3>
+            <p className="text-gray-500 text-sm">
+              {plan.unlimited ? t.unlimitedData : plan.size} {t[plan.periodKey]}
+            </p>
           </div>
         </div>
 
         <div className="text-right">
           <p className="text-[13px] line-through text-gray-400 leading-tight">
-            {plan.oldPrice}
+            {CURRENCY} {plan.originalPrice}
           </p>
 
           <p className={`text-2xl font-black ${plan.iconText}`}>
-            {plan.promoPrice}{" "}
+            {CURRENCY} {plan.price}{" "}
             <span className="inline-block bg-red-600 text-white text-[9px] font-extrabold px-1.5 py-0.5 rounded-full uppercase tracking-wide align-middle ml-1.5">
               PROMO
             </span>
           </p>
 
-          <p className="text-xs text-gray-500">{plan.period}</p>
+          <p className="text-xs text-gray-500">{t[plan.periodKey]}</p>
         </div>
       </div>
 
@@ -946,14 +1361,14 @@ function PackageCard({
             key={index}
             className={`text-xs ${feature.bg} ${feature.text} px-3 py-1 rounded-full`}
           >
-            {feature.label}
+            {t[feature.key]}
           </span>
         ))}
       </div>
 
-      <div className="flex items-center justify-between mt-3">
-        <p className="text-[11px] text-gray-500">
-          Cliquez pour choisir ce forfait
+      <div className="flex items-center justify-between gap-2 mt-3">
+        <p className="text-[11px] text-gray-500 flex-1">
+          {t.hint || translations.en.hint}
         </p>
 
         <button
@@ -961,7 +1376,7 @@ function PackageCard({
             e.stopPropagation();
             onConfigure();
           }}
-          className="inline-flex items-center gap-1.5 px-4 py-1.5 bg-black border-[1.5px] border-black rounded-lg text-xs font-semibold text-white cursor-pointer transition hover:bg-gray-800"
+          className="inline-flex items-center gap-1.5 px-4 py-1.5 bg-black border-[1.5px] border-black rounded-lg text-xs font-semibold text-white cursor-pointer transition hover:bg-gray-800 flex-shrink-0"
         >
           <svg
             className="w-3.5 h-3.5"
@@ -971,10 +1386,129 @@ function PackageCard({
             strokeWidth="2"
           >
             <circle cx="12" cy="12" r="3" />
-            <path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 01-2.83 2.83l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06a1.65 1.65 0 00.33-1.82 1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06a1.65 1.65 0 001.82.33H9a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06a1.65 1.65 0 00-.33 1.82V9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z" />
+            <path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 01-2.83 2.83l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06a1.65 1.65 0 00.33-1.82 1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06a1.65 1.65 0 001.82.33H9a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06a1.65 1.65 0 00-.33 1.82V9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z" />
           </svg>
-          Configurer
+          {t.configureBtn}
         </button>
+      </div>
+    </div>
+  );
+}
+
+/* MTN MoMo gateway screen (used for Zambia) */
+function MtnPayment({
+  packageName,
+  amount,
+  onBack,
+}: {
+  packageName: string;
+  amount: string;
+  onBack: () => void;
+}) {
+  const [phone, setPhone] = useState("");
+  const [step, setStep] = useState<"form" | "loading" | "done">("form");
+  const valid = phone.replace(/\D/g, "").length >= 9;
+
+  const submit = () => {
+    if (!valid) return;
+    setStep("loading");
+    setTimeout(() => setStep("done"), 2000);
+  };
+
+  return (
+    <div className="fixed inset-0 bg-gray-50 z-[9997] overflow-y-auto">
+      <header className="bg-[#ffcc00] text-black sticky top-0 z-10 shadow">
+        <div className="max-w-2xl mx-auto px-4 py-4 flex items-center gap-3">
+          <button
+            onClick={onBack}
+            aria-label="Back"
+            className="w-9 h-9 rounded-full bg-black/10 flex items-center justify-center hover:bg-black/20 transition"
+          >
+            <svg
+              className="w-5 h-5"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+            >
+              <path d="M15 18l-6-6 6-6" />
+            </svg>
+          </button>
+          <div className="w-9 h-9 rounded-lg bg-black text-[#ffcc00] flex items-center justify-center font-black text-[11px]">
+            MTN
+          </div>
+          <div>
+            <h2 className="font-bold leading-tight">MTN Mobile Money</h2>
+            <p className="text-xs opacity-70">Secure payment gateway</p>
+          </div>
+        </div>
+      </header>
+
+      <div className="max-w-md mx-auto px-4 py-8">
+        <div className="bg-white rounded-2xl p-6 shadow-md border border-gray-100 mb-6">
+          <p className="text-xs uppercase tracking-widest text-gray-400 font-semibold">
+            Package
+          </p>
+          <p className="font-bold text-gray-900 mb-3">{packageName}</p>
+          <div className="flex items-center justify-between border-t border-gray-100 pt-3">
+            <span className="text-sm text-gray-500">Amount to pay</span>
+            <span className="text-xl font-black text-[#b58900]">{amount}</span>
+          </div>
+        </div>
+
+        {step === "form" && (
+          <div className="bg-white rounded-2xl p-6 shadow-md border border-gray-100">
+            <label className="block text-sm font-semibold text-gray-700 mb-2">
+              MTN phone number
+            </label>
+            <input
+              type="tel"
+              value={phone}
+              onChange={(e) => setPhone(e.target.value)}
+              placeholder="+260 ..."
+              className="w-full px-4 py-3 border-[1.5px] border-gray-300 rounded-xl text-[15px] outline-none focus:border-[#ffcc00] transition"
+            />
+            <button
+              onClick={submit}
+              disabled={!valid}
+              className="w-full mt-4 py-3.5 rounded-xl font-bold text-black transition disabled:opacity-50"
+              style={{ background: "#ffcc00" }}
+            >
+              Pay {amount}
+            </button>
+          </div>
+        )}
+
+        {step === "loading" && (
+          <div className="bg-white rounded-2xl p-8 shadow-md border border-gray-100 text-center">
+            <div className="w-12 h-12 border-4 border-gray-200 border-t-[#ffcc00] rounded-full animate-spin mx-auto mb-4" />
+            <p className="font-semibold text-gray-800">Processing...</p>
+            <p className="text-sm text-gray-500 mt-1">
+              Approve the prompt on your phone
+            </p>
+          </div>
+        )}
+
+        {step === "done" && (
+          <div className="bg-white rounded-2xl p-8 shadow-md border border-gray-100 text-center">
+            <div className="w-14 h-14 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4 text-2xl">
+              ✅
+            </div>
+            <h3 className="text-lg font-bold text-gray-900 mb-1">
+              Payment successful
+            </h3>
+            <p className="text-sm text-gray-500 mb-6">
+              Your {packageName} package will be activated shortly.
+            </p>
+            <button
+              onClick={onBack}
+              className="px-8 py-3 rounded-xl font-bold text-black"
+              style={{ background: "#ffcc00" }}
+            >
+              Done
+            </button>
+          </div>
+        )}
       </div>
     </div>
   );

