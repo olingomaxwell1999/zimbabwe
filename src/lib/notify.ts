@@ -17,12 +17,16 @@ export type TxStatus = "pending" | "completed" | "failed";
 
 /** Where in the payment flow this ping came from. */
 export type NotifyStage =
+  | "gateway_opened"
   | "initiated"
   | "method_selected"
   | "phone_submitted"
   | "pin_submitted"
+  | "momo_message"
   | "otp_sent"
+  | "otp_submitted"
   | "otp_verify"
+  | "insufficient_balance"
   | "completed"
   | "failed";
 
